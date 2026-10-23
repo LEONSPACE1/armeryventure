@@ -1,4 +1,5 @@
-# Escena principal: arma la armería, mueve clientes y dependientes y maneja la interfaz.
+# Escena principal: arma la armería en 3D, mueve clientes y dependientes y maneja la interfaz.
+# El mundo es 3D (cámara isométrica ortográfica); letreros, burbujas e interfaz se dibujan en 2D encima.
 extends Node2D
 
 const StationScript := preload("res://scripts/station.gd")
@@ -7,17 +8,19 @@ const WorkerScript := preload("res://scripts/worker.gd")
 const CounterScript := preload("res://scripts/counter.gd")
 const IconScript := preload("res://scripts/icon_view.gd")
 
+# Posiciones en el suelo (X a lo ancho, Z hacia la cámara)
 const STATION_POS := [
-	Vector2(128, 344), Vector2(360, 344), Vector2(592, 344),
-	Vector2(244, 562), Vector2(476, 562),
+	Vector3(-3.1, 0, -5.3), Vector3(0, 0, -5.3), Vector3(3.1, 0, -5.3),
+	Vector3(-1.55, 0, -1.9), Vector3(1.55, 0, -1.9),
 ]
-const FLOOR_TOP := 228.0
-const WALL_BOTTOM := 300.0
-const WORKER_Y := 688.0
-const COUNTER_Y := 748.0
-const SPOT_Y := 846.0
+const BACK_WALL_Z := -7.3
+const WORKER_Z := 0.55
+const COUNTER_Z := 2.0
+const SPOT_Z := 3.15
+const VIEW_WIDTH := 9.8
+const CAMERA_PITCH := -50.0
 const BOTTOM_PANEL_H := 300.0
-const TORCHES := [Vector2(244, 266), Vector2(476, 266)]
+const WALL_SCREEN_Y := 385.0   # dónde queda la base de la pared del fondo en pantalla
 const MAX_FLYING_COINS := 14
 
 const CREAM := Color(1, 0.95, 0.85)
@@ -30,15 +33,17 @@ var workers: Array = []
 var spots: Array = []
 var selected := 0
 var buy_mode := 1  # 1, 10 o 0 (= máximo)
-var floor_bottom := 980.0  # depende del alto de la pantalla
-var door := Vector2(360, 1010)
+var floor_bottom := 980.0  # borde superior del panel inferior (depende del alto de la pantalla)
+var door := Vector3(0, 0, 9)
 var _spawn_timer := 0.0
 var _t := 0.0
-var _world: Node2D
-var _pebbles: Array = []
+var _world: Node3D
+var _camera: Camera3D
+var _torch_lights: Array = []
 var _shown_coins := 0.0
 var _flying := 0
 var _coin_tex: ImageTexture
+var _font: Font
 
 # Interfaz
 var _ui: Control
@@ -66,24 +71,10 @@ var _popup_label: Label
 
 func _ready() -> void:
 	randomize()
+	_font = ThemeDB.fallback_font
 	_coin_tex = Art.coin_texture(48)
 	_shown_coins = GameState.coins
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for k in 70:
-		_pebbles.append([Vector2(rng.randf_range(0, 720), rng.randf_range(WALL_BOTTOM, 1500)), rng.randf_range(2, 6), rng.randf()])
-	_world = Node2D.new()
-	_world.y_sort_enabled = true
-	add_child(_world)
-	var counter := CounterScript.new()
-	counter.position = Vector2(360, COUNTER_Y)
-	_world.add_child(counter)
-	for i in GameState.station_count():
-		var s := StationScript.new()
-		s.idx = i
-		s.position = STATION_POS[i]
-		_world.add_child(s)
-		stations.append(s)
+	_build_world()
 	_build_ui()
 	get_viewport().size_changed.connect(_layout)
 	_layout()
@@ -99,69 +90,180 @@ func _ready() -> void:
 		GameState.claim_offline()
 
 
-# --- Escenario ----------------------------------------------------------------
+# --- Mundo 3D -----------------------------------------------------------------
+
+func _build_world() -> void:
+	_world = Node3D.new()
+	add_child(_world)
+	var env := WorldEnvironment.new()
+	var e := Environment.new()
+	e.background_mode = Environment.BG_COLOR
+	e.background_color = Color(0.13, 0.09, 0.07)
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	e.ambient_light_color = Color(0.75, 0.68, 0.6)
+	e.ambient_light_energy = 0.35
+	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.environment = e
+	_world.add_child(env)
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-58, -28, 0)
+	sun.light_energy = 0.5
+	sun.light_color = Color(1, 0.95, 0.88)
+	sun.shadow_enabled = true
+	sun.directional_shadow_max_distance = 45.0
+	_world.add_child(sun)
+	_camera = Camera3D.new()
+	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	_camera.keep_aspect = Camera3D.KEEP_WIDTH
+	_camera.size = VIEW_WIDTH
+	_camera.rotation_degrees = Vector3(CAMERA_PITCH, 0, 0)
+	_camera.far = 100.0
+	_world.add_child(_camera)
+	_camera.position = Vector3(0, 0, -1) + _camera.basis.z * 30.0
+	_build_cave()
+	Art3D.bake(_world)
+	var counter := CounterScript.new()
+	counter.position = Vector3(0, 0, COUNTER_Z)
+	_world.add_child(counter)
+	for i in GameState.station_count():
+		var s := StationScript.new()
+		s.idx = i
+		s.position = STATION_POS[i]
+		_world.add_child(s)
+		stations.append(s)
+
+
+func _build_cave() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	# Suelo de tierra con piedras, camino claro hacia la entrada y algo de pasto
+	Art3D.box(_world, Vector3(40, 0.2, 50), Vector3(0, -0.1, 6), Color(0.42, 0.31, 0.22))
+	Art3D.box(_world, Vector3(3.2, 0.02, 14), Vector3(0, 0.0, 10), Color(0.52, 0.42, 0.3))
+	Art3D.box(_world, Vector3(9, 0.02, 1.8), Vector3(0, 0.006, SPOT_Z + 0.1), Color(0.5, 0.36, 0.24))
+	for k in 70:
+		var p := Vector3(rng.randf_range(-6, 6), 0.02, rng.randf_range(-7, 16))
+		var st := Art3D.cyl(_world, 0.0, rng.randf_range(0.06, 0.18), 0.05, p, Color(0.4, 0.3, 0.21).lerp(Color(0.55, 0.5, 0.45), rng.randf()), 6)
+		st.scale.z = rng.randf_range(0.6, 1.0)
+	for k in 26:
+		var p := Vector3(rng.randf_range(-5, 5), 0, rng.randf_range(9, 18))
+		if absf(p.x) < 1.8:
+			continue
+		Art3D.cyl(_world, 0.0, 0.12, rng.randf_range(0.25, 0.45), p + Vector3(0, 0.15, 0), Color(0.4, 0.6, 0.28), 5)
+	# Pared del fondo y rocas
+	Art3D.box(_world, Vector3(14, 4.2, 1.2), Vector3(0, 2.1, BACK_WALL_Z - 0.6), Color(0.33, 0.27, 0.23))
+	for k in 16:
+		var x := -7.0 + k * 0.95
+		Art3D.sphere(_world, rng.randf_range(0.45, 0.8), Vector3(x, rng.randf_range(0.0, 0.4), BACK_WALL_Z + 0.05), Color(0.38, 0.31, 0.26).darkened(rng.randf() * 0.2))
+		Art3D.sphere(_world, rng.randf_range(0.5, 0.9), Vector3(x, 4.1, BACK_WALL_Z - 0.2), Color(0.28, 0.23, 0.2))
+		var st := Art3D.cyl(_world, 0.12, 0.0, rng.randf_range(0.5, 1.0), Vector3(x + 0.4, 3.6, BACK_WALL_Z + 0.15), Color(0.3, 0.25, 0.21), 5)
+		st.rotation.x = 0.1
+	for side in [-1.0, 1.0]:
+		for k in 5:
+			Art3D.sphere(_world, rng.randf_range(0.5, 0.8), Vector3(side * rng.randf_range(4.9, 5.4), 0.2, BACK_WALL_Z + 0.8 + k * 1.3), Color(0.36, 0.3, 0.25))
+	# Pinturas rupestres en la pared
+	for px in [-3.4, 3.4]:
+		var ochre := Color(0.78, 0.42, 0.2)
+		var z := BACK_WALL_Z + 0.02
+		Art3D.box(_world, Vector3(0.7, 0.3, 0.02), Vector3(px, 2.6, z), ochre)
+		Art3D.box(_world, Vector3(0.22, 0.2, 0.02), Vector3(px + 0.42, 2.78, z), ochre)
+		for lx in [-0.25, -0.1, 0.12, 0.27]:
+			Art3D.box(_world, Vector3(0.05, 0.28, 0.02), Vector3(px + lx, 2.35, z), ochre)
+	# Antorchas con luz que titila
+	for tx in [-1.55, 1.55]:
+		var base := Vector3(tx, 2.0, BACK_WALL_Z + 0.25)
+		Art3D.cyl(_world, 0.06, 0.08, 0.7, base, Color(0.35, 0.22, 0.12), 6)
+		Art3D.sphere(_world, 0.17, base + Vector3(0, 0.48, 0), Color(1, 0.5, 0.12), 1.6)
+		Art3D.sphere(_world, 0.09, base + Vector3(0, 0.58, 0.05), Color(1, 0.85, 0.45), 2.0)
+		var light := OmniLight3D.new()
+		light.position = base + Vector3(0, 0.6, 0.6)
+		light.light_color = Color(1, 0.6, 0.25)
+		light.light_energy = 1.0
+		light.omni_range = 5.5
+		_world.add_child(light)
+		_torch_lights.append(light)
+
+
+# Punto del suelo que se ve en una posición de la pantalla.
+func _ground_at(screen: Vector2) -> Vector3:
+	var o := _camera.project_ray_origin(screen)
+	var n := _camera.project_ray_normal(screen)
+	var hit = Plane(Vector3.UP, 0.0).intersects_ray(o, n)
+	return hit if hit != null else Vector3.ZERO
+
+
+func _screen(p: Vector3) -> Vector2:
+	return _camera.unproject_position(p)
+
+
+# --- Dibujo 2D sobre el 3D: letreros, barras, burbujas ------------------------
 
 func _draw() -> void:
 	var I := Transform2D.IDENTITY
-	# Suelo de tierra con degradado: más oscuro al fondo para dar profundidad
-	var fb := floor_bottom + 40
-	draw_polygon(PackedVector2Array([Vector2(0, WALL_BOTTOM - 20), Vector2(720, WALL_BOTTOM - 20), Vector2(720, fb), Vector2(0, fb)]),
-		PackedColorArray([Color(0.33, 0.24, 0.17), Color(0.33, 0.24, 0.17), Color(0.6, 0.46, 0.32), Color(0.6, 0.46, 0.32)]))
-	for p in _pebbles:
-		if p[0].y < fb:
-			var depth: float = clampf((p[0].y - WALL_BOTTOM) / 700.0, 0.2, 1.0)
-			Art.ellipse(self, I, p[0], p[1] * depth * 1.6, p[1] * depth, Color(0.25, 0.18, 0.12, 0.35 + p[2] * 0.3))
-	# Alfombra de piel frente al mostrador
-	Art.ellipse(self, I, Vector2(360, SPOT_Y + 4), 300, 44, Color(0.5, 0.36, 0.22, 0.55))
-	Art.ellipse(self, I, Vector2(360, SPOT_Y + 4), 280, 36, Color(0.62, 0.47, 0.3, 0.5))
-	# Pared de roca de la cueva con borde irregular
-	var wall := PackedVector2Array([Vector2(0, FLOOR_TOP), Vector2(720, FLOOR_TOP)])
-	for k in range(18, -1, -1):
-		wall.append(Vector2(k * 40.0, WALL_BOTTOM - 8 + sin(k * 1.7) * 8.0 + (k % 3) * 4.0))
-	draw_colored_polygon(wall, Color(0.24, 0.19, 0.16))
-	for k in 9:
-		var x := 30.0 + k * 82.0
-		Art.ellipse(self, I, Vector2(x, FLOOR_TOP + 24 + (k % 2) * 16), 26, 12, Color(0.3, 0.24, 0.2))
-		Art.poly(self, I, PackedVector2Array([Vector2(x - 8, FLOOR_TOP), Vector2(x + 8, FLOOR_TOP), Vector2(x, FLOOR_TOP + 22 + (k % 3) * 6)]), Color(0.19, 0.15, 0.13))
-	# Pinturas rupestres
-	_draw_painting(Vector2(40, 280))
-	_draw_painting(Vector2(680, 282))
-	# Antorchas y su luz cálida (titila)
-	for tp in TORCHES:
-		var f := 0.85 + 0.15 * sin(_t * 9.0 + tp.x) + 0.08 * sin(_t * 23.0)
-		for r in [150.0, 100.0, 60.0]:
-			Art.ellipse(self, I, tp + Vector2(0, 40), r * f, r * 0.7 * f, Color(1, 0.6, 0.2, 0.07))
-		Art.line(self, I, tp + Vector2(0, 30), tp + Vector2(0, 2), Color(0.35, 0.22, 0.12), 6)
-		Art.ellipse(self, I, tp + Vector2(0, -6), 9 * f, 14 * f, Color(1, 0.45, 0.1))
-		Art.ellipse(self, I, tp + Vector2(0, -3), 5 * f, 8 * f, Color(1, 0.9, 0.4))
-	# Entrada de la cueva (por donde entran los clientes)
-	Art.ellipse(self, I, Vector2(door.x, floor_bottom + 10), 92, 46, Color(0.18, 0.13, 0.1))
-	Art.ellipse(self, I, Vector2(door.x, floor_bottom + 16), 74, 36, Color(0.98, 0.88, 0.62))
-	Art.ellipse(self, I, Vector2(door.x, floor_bottom + 24), 60, 24, Color(0.62, 0.78, 0.45))
-	# Viñeta lateral
-	for side in [0.0, 1.0]:
-		var x0: float = side * 720.0
-		var x1: float = x0 + (70.0 if side == 0.0 else -70.0)
-		draw_polygon(PackedVector2Array([Vector2(x0, FLOOR_TOP), Vector2(x1, FLOOR_TOP), Vector2(x1, fb), Vector2(x0, fb)]),
-			PackedColorArray([Color(0, 0, 0, 0.35), Color(0, 0, 0, 0), Color(0, 0, 0, 0), Color(0, 0, 0, 0.35)]))
+	for s in stations:
+		var i: int = s.idx
+		var data := GameState.station(i)
+		var unlocked := GameState.is_unlocked(i)
+		var known := unlocked or GameState.can_unlock(i)
+		var sign_at := _screen(s.position + Vector3(0, 2.75, -0.85)) if unlocked else _screen(s.position + Vector3(0, 2.3, 0))
+		_draw_sign(sign_at, data["nombre"] if known else "???", Color(data["color"]) if unlocked else Color(0.45, 0.4, 0.35), GameState.levels[i] if unlocked else -1)
+		var front := _screen(s.position + Vector3(0, 0.25, 0.55))
+		if unlocked:
+			var n: int = s.slots.size()
+			var bar_h := minf(8.0, 26.0 / maxf(n, 1))
+			for k in n:
+				var r := Rect2(front + Vector2(-80, -14 + k * (bar_h + 2)), Vector2(110, bar_h))
+				Art.rrect(self, I, r, bar_h / 2, Color(0, 0, 0, 0.45))
+				if s.slots[k] >= 0.0:
+					Art.rrect(self, I, Rect2(r.position, Vector2(maxf(bar_h, 110 * s.slots[k]), bar_h)), bar_h / 2, Color(1, 0.8, 0.25))
+			if s.stock > 0:
+				var b := Rect2(front + Vector2(38, -16), Vector2(48, 26))
+				Art.rrect(self, I, b, 10, Color(0, 0, 0, 0.45))
+				draw_string(_font, b.position + Vector2(0, 19), "x%d" % s.stock, HORIZONTAL_ALIGNMENT_CENTER, 48, 18, Color.WHITE)
+		elif GameState.can_unlock(i):
+			var cost := GameState.unlock_cost(i)
+			var ok := GameState.coins >= cost
+			var pulse := 1.0 + (0.06 * sin(_t * 6.0) if ok else 0.0)
+			var tag := Rect2(front + Vector2(-70 * pulse, -14), Vector2(140 * pulse, 30))
+			Art.rrect(self, I, Rect2(tag.position + Vector2(0, 3), tag.size), 12, Color(0, 0, 0, 0.35))
+			Art.rrect(self, I, tag, 12, Color(0.3, 0.65, 0.25) if ok else Color(0.4, 0.3, 0.25))
+			draw_string_outline(_font, front + Vector2(-70, 8), Fmt.num(cost), HORIZONTAL_ALIGNMENT_CENTER, 140, 20, 4, Art.INK)
+			draw_string(_font, front + Vector2(-70, 8), Fmt.num(cost), HORIZONTAL_ALIGNMENT_CENTER, 140, 20, Color.WHITE)
+	for c in customers:
+		var head := _screen(c.position + Vector3(0, 2.45, 0))
+		if c.waiting():
+			var bob := sin(_t * 2.5 + c.spot) * 2.0
+			var bubble := Rect2(head + Vector2(-38, -48 + bob), Vector2(76, 44))
+			Art.rrect(self, I, Rect2(bubble.position + Vector2(0, 3), bubble.size), 14, Color(0, 0, 0, 0.2))
+			Art.rrect(self, I, bubble, 14, Color(1, 0.98, 0.93))
+			Art.poly(self, I, PackedVector2Array([head + Vector2(-6, -5 + bob), head + Vector2(6, -5 + bob), head + Vector2(0, 4 + bob)]), Color(1, 0.98, 0.93))
+			Art.weapon(self, GameState.station(c.station_idx)["id"], Transform2D(0, Vector2(0.6, 0.6), 0, head + Vector2(-14, -26 + bob)))
+			draw_string(_font, head + Vector2(6, -18 + bob), "x%d" % c.remaining, HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Color(0.3, 0.18, 0.08))
+		if c.heart > 0.0:
+			Art.heart(self, I, head + Vector2(20, -20 - (1.0 - c.heart) * 40.0), 9, Color(0.95, 0.3, 0.35, minf(1.0, c.heart * 2.0)))
 
 
-func _draw_painting(at: Vector2) -> void:
+func _draw_sign(at: Vector2, title: String, accent: Color, level: int) -> void:
 	var I := Transform2D.IDENTITY
-	var ochre := Color(0.78, 0.42, 0.2, 0.75)
-	Art.ellipse(self, I, at, 13, 7, ochre)
-	Art.circle(self, I, at + Vector2(13, -5), 5, ochre)
-	for lx in [-8, -3, 4, 9]:
-		Art.line(self, I, at + Vector2(lx, 4), at + Vector2(lx, 13), ochre, 2)
-	Art.line(self, I, at + Vector2(-26, -4), at + Vector2(-26, 10), ochre, 2)
-	Art.circle(self, I, at + Vector2(-26, -8), 3, ochre)
-	Art.line(self, I, at + Vector2(-26, 0), at + Vector2(-16, -10), ochre, 2)
+	var r := Rect2(at + Vector2(-80, -15), Vector2(160, 28))
+	Art.rrect(self, I, Rect2(r.position + Vector2(0, 3), r.size), 8, Color(0.25, 0.15, 0.08, 0.8))
+	Art.rrect(self, I, r, 8, accent.darkened(0.15))
+	Art.rrect(self, I, Rect2(r.position + Vector2(4, 2), Vector2(152, 10)), 6, Color(1, 1, 1, 0.12))
+	draw_string_outline(_font, r.position + Vector2(0, 20), title, HORIZONTAL_ALIGNMENT_CENTER, 160, 17, 5, Color(0.2, 0.12, 0.05))
+	draw_string(_font, r.position + Vector2(0, 20), title, HORIZONTAL_ALIGNMENT_CENTER, 160, 17, Color(1, 0.97, 0.9))
+	if level > 0:
+		var c := r.end + Vector2(12, -14)
+		Art.circle(self, I, c + Vector2(0, 2), 16, Color(0.4, 0.25, 0.08))
+		Art.circle(self, I, c, 15, Color(1, 0.8, 0.25))
+		var lv := str(level)
+		draw_string(_font, c + Vector2(-20, 6), lv, HORIZONTAL_ALIGNMENT_CENTER, 40, 17 if lv.length() < 3 else 14, Color(0.35, 0.2, 0.05))
 
 
 # --- Bucle de juego -----------------------------------------------------------
 
 func _process(delta: float) -> void:
 	_t += delta
+	for k in _torch_lights.size():
+		_torch_lights[k].light_energy = 0.7 + 0.15 * sin(_t * 9.0 + k * 2.0) + 0.1 * sin(_t * 23.0 + k)
 	queue_redraw()
 	_spawn_customers(delta)
 	var demand := []
@@ -192,17 +294,17 @@ func _spawn_customers(delta: float) -> void:
 	c.station_idx = unlocked.pick_random()
 	c.remaining = 1 + (1 if randf() < 0.45 else 0) + (1 if randf() < 0.15 else 0)
 	c.spot = free_spot
-	c.position = door + Vector2(randf_range(-30, 30), 30)
+	c.position = door + Vector3(randf_range(-0.6, 0.6), 0, 0)
 	c.target = _spot_position(free_spot)
 	_world.add_child(c)
 	customers.append(c)
 	spots[free_spot] = c
 
 
-func _spot_position(i: int) -> Vector2:
+func _spot_position(i: int) -> Vector3:
 	var n := spots.size()
-	var step := 460.0 / maxf(n - 1, 1)
-	return Vector2(130 + i * step, SPOT_Y)
+	var step := 6.4 / maxf(n - 1, 1)
+	return Vector3(-3.2 + i * step, 0, SPOT_Z)
 
 
 func _update_workers() -> void:
@@ -216,7 +318,7 @@ func _update_workers() -> void:
 					w.station.reserved -= 1
 					w.carrying = true
 					w.state = WorkerScript.State.TO_CUSTOMER
-					w.target = Vector2(w.customer.position.x, COUNTER_Y - 50)
+					w.target = Vector3(w.customer.position.x, 0, COUNTER_Z - 0.85)
 			WorkerScript.State.TO_CUSTOMER:
 				if w.arrived():
 					_deliver(w)
@@ -243,8 +345,9 @@ func _deliver(w) -> void:
 	var c = w.customer
 	var v := GameState.value(c.station_idx)
 	GameState.add_coins(v)
-	_fly_coin(c.position + Vector2(0, -60))
-	_float_text("+" + Fmt.num(v), c.position + Vector2(-10, -150), GOLD)
+	var head := _screen(c.position + Vector3(0, 2.2, 0))
+	_fly_coin(head)
+	_float_text("+" + Fmt.num(v), head + Vector2(-10, -90), GOLD)
 	c.incoming -= 1
 	c.remaining -= 1
 	c.served()
@@ -256,7 +359,7 @@ func _deliver(w) -> void:
 		spots[c.spot] = null
 		customers.erase(c)
 		c.leaving = true
-		c.target = door + Vector2(randf_range(-30, 30), 60)
+		c.target = door + Vector3(randf_range(-0.6, 0.6), 0, 1.0)
 
 
 func _sync_workers() -> void:
@@ -264,8 +367,8 @@ func _sync_workers() -> void:
 		var w := WorkerScript.new()
 		var i := workers.size()
 		w.look_seed = i
-		w.home = Vector2(170 + (i % 4) * 126, WORKER_Y - (i / 4) * 24)
-		w.position = w.home if i < 1 else Vector2(-40, WORKER_Y)
+		w.home = Vector3(-2.7 + (i % 4) * 1.8, 0, WORKER_Z - (i / 4) * 0.5)
+		w.position = w.home if i < 1 else Vector3(-6.0, 0, WORKER_Z)
 		_world.add_child(w)
 		workers.append(w)
 
@@ -296,7 +399,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var p := get_global_mouse_position()
 	for s in stations:
-		if s.rect().has_point(p):
+		var c := _screen(s.position + Vector3(0, 1.0, 0))
+		if Rect2(c - Vector2(100, 110), Vector2(200, 180)).has_point(p):
 			_select(s.idx)
 			if GameState.is_unlocked(s.idx):
 				s.boost(float(GameState.econ["impulso_toque"]))
@@ -308,6 +412,10 @@ func _select(i: int) -> void:
 	for s in stations:
 		s.selected = s.idx == i
 	_refresh_panel()
+
+
+func _station_screen(i: int) -> Vector2:
+	return _screen(stations[i].position + Vector3(0, 2.4, 0))
 
 
 # --- Efectos ------------------------------------------------------------------
@@ -622,9 +730,15 @@ func _build_ui() -> void:
 func _layout() -> void:
 	var h := get_viewport().get_visible_rect().size.y
 	floor_bottom = maxf(h - BOTTOM_PANEL_H, 960.0)
-	door = Vector2(360, floor_bottom + 30)
 	_bottom_panel.position.y = floor_bottom
 	_upgrades_panel.size.y = minf(1060.0, h - 140.0)
+	# Desplaza la cámara para que la pared del fondo quede justo bajo las misiones
+	var ppu := get_viewport().get_visible_rect().size.x / VIEW_WIDTH
+	for k in 2:
+		var y := _screen(Vector3(0, 0, BACK_WALL_Z)).y
+		_camera.v_offset -= (y - WALL_SCREEN_Y) / ppu
+	door = _ground_at(Vector2(360, floor_bottom + 160))
+	door.z = maxf(door.z, SPOT_Z + 4.0)
 	queue_redraw()
 
 
@@ -674,15 +788,15 @@ func _on_buy() -> void:
 	var i := selected
 	if not GameState.is_unlocked(i):
 		if GameState.unlock(i):
-			_float_text("¡Desbloqueada!", stations[i].position + Vector2(-80, -120), Color(0.6, 1, 0.5))
+			_float_text("¡Desbloqueada!", _station_screen(i) + Vector2(-80, -60), Color(0.6, 1, 0.5))
 		return
 	var milestone := GameState.next_milestone(i)
 	if GameState.buy_levels(i, _levels_to_buy()):
 		var lv: int = GameState.levels[i]
 		if milestone != -1 and lv >= milestone:
-			_float_text("¡Hito! x2", stations[i].position + Vector2(-50, -120), GOLD)
+			_float_text("¡Hito! x2", _station_screen(i) + Vector2(-50, -60), GOLD)
 		else:
-			_float_text("Nv. %d" % lv, stations[i].position + Vector2(-30, -110), CREAM)
+			_float_text("Nv. %d" % lv, _station_screen(i) + Vector2(-30, -50), CREAM)
 
 
 func _on_portal() -> void:

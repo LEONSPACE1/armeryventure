@@ -20,8 +20,8 @@
     "intervalo_clientes": 2.6,
     "fila_base": 4,
     "dependientes_base": 1,
-    "velocidad_dependiente": 240,
-    "velocidad_cliente": 230,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
     "impulso_toque": 0.2,
     "factor_offline": 0.5,
     "tope_offline_horas": 2

@@ -1,30 +1,28 @@
 # Cliente: entra, espera en el mostrador con su pedido, paga y se va feliz.
-extends Node2D
+extends Node3D
+
+const PersonScript := preload("res://scripts/person3d.gd")
 
 var station_idx := 0
 var remaining := 1   # armas que aún no ha recibido
 var incoming := 0    # armas que un dependiente ya le está trayendo
 var spot := -1
-var target := Vector2.ZERO
+var target := Vector3.ZERO
 var leaving := false
-var _look: Dictionary = {}
-var _t := 0.0
+var heart := 0.0     # tiempo del corazón que se dibuja encima
+var _person: Node3D
 var _walk := 0.0
-var _moving := false
-var _facing := 1.0
-var _hop := 0.0
-var _heart := 0.0
-var _wait := 0.0
-var _font: Font
+var _t := 0.0
 
 
 func _ready() -> void:
-	_font = ThemeDB.fallback_font
 	_t = randf() * 10.0
-	_look = {
-		"outfit": Art.FURS.pick_random(), "skin": Art.SKINS.pick_random(),
-		"hair": Art.HAIRS.pick_random(), "style": randi() % 4, "seed": randf() * 5.0,
-	}
+	_person = PersonScript.new()
+	_person.outfit = Art.FURS.pick_random()
+	_person.skin = Art.SKINS.pick_random()
+	_person.hair = Art.HAIRS.pick_random()
+	_person.style = randi() % 4
+	add_child(_person)
 
 
 func needs() -> int:
@@ -32,55 +30,29 @@ func needs() -> int:
 
 
 func waiting() -> bool:
-	return not leaving and position.distance_to(target) < 1.0
+	return not leaving and position.distance_to(target) < 0.01
 
 
 # Recibió un arma: salta y muestra un corazón.
 func served() -> void:
-	_hop = 1.0
-	_heart = 1.0
+	_person.happy = 1.0
+	heart = 1.0
 
 
 func _process(delta: float) -> void:
 	_t += delta
+	heart = maxf(0.0, heart - delta * 0.9)
 	var before := position
 	position = position.move_toward(target, float(GameState.econ["velocidad_cliente"]) * delta)
 	var moved := position - before
-	_moving = moved.length() > 0.1
-	if _moving:
-		_walk += moved.length() * 0.09
-		if absf(moved.x) > 0.2:
-			_facing = signf(moved.x)
+	var moving := moved.length() > 0.0005
+	_person.walking = moving
+	if moving:
+		_walk += moved.length() * 6.0
+		_person.walk_phase = _walk
+		_person.face(moved, delta)
 	elif not leaving:
-		_wait += delta
-	_hop = maxf(0.0, _hop - delta * 2.5)
-	_heart = maxf(0.0, _heart - delta * 0.9)
-	if leaving and not _moving:
+		_person.face(Vector3(0, 0, -1), delta)
+	_person.carry_id = GameState.station(station_idx)["id"] if leaving else ""
+	if leaving and not moving:
 		queue_free()
-	queue_redraw()
-
-
-func _draw() -> void:
-	var lift := sin(_hop * PI) * 26.0
-	var o := _look.duplicate()
-	o["t"] = _t
-	o["walk"] = _walk
-	o["moving"] = _moving
-	o["facing"] = _facing
-	o["mood"] = 1 if (_hop > 0.0 or leaving) else 0
-	o["carry"] = GameState.station(station_idx)["id"] if leaving else ""
-	Art.person(self, Transform2D(0, Vector2.ONE, 0, Vector2(0, -lift)), o)
-	if _heart > 0.0:
-		var hy := -110.0 - (1.0 - _heart) * 40.0
-		Art.heart(self, Transform2D.IDENTITY, Vector2(18, hy), 9, Color(0.95, 0.3, 0.35, minf(1.0, _heart * 2.0)))
-	if leaving or not waiting():
-		return
-	# Burbuja con el pedido, con un leve vaivén
-	var I := Transform2D(0, Vector2.ONE, 0, Vector2(0, sin(_t * 2.5) * 2.0 - lift))
-	var bubble := Rect2(-38, -136, 76, 46)
-	Art.rrect(self, I, Rect2(bubble.position + Vector2(0, 3), bubble.size), 14, Color(0, 0, 0, 0.2))
-	Art.rrect(self, I, bubble, 14, Color(1, 0.98, 0.93))
-	Art.poly(self, I, PackedVector2Array([Vector2(-6, -91), Vector2(6, -91), Vector2(0, -82)]), Color(1, 0.98, 0.93))
-	Art.weapon(self, GameState.station(station_idx)["id"], I * Transform2D(0, Vector2(0.62, 0.62), 0, Vector2(-14, -113)))
-	var pos: Vector2 = I * Vector2(6, -105)
-	draw_string(_font, pos, "x%d" % remaining, HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Color(0.3, 0.18, 0.08))
