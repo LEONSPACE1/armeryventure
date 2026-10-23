@@ -1,0 +1,277 @@
+{
+  "id": "prehistoria",
+  "nombre": "Prehistoria",
+  "siguiente": "Edad del Bronce",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 240,
+    "velocidad_cliente": 230,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "lanza",
+      "nombre": "Lanza de madera",
+      "costo_desbloqueo": 0,
+      "costo_base": 4,
+      "valor_base": 1,
+      "tiempo": 2.0,
+      "color": "#b5835a"
+    },
+    {
+      "id": "hacha",
+      "nombre": "Hacha de mano",
+      "costo_desbloqueo": 600,
+      "costo_base": 30,
+      "valor_base": 8,
+      "tiempo": 3.0,
+      "color": "#8f8a7e"
+    },
+    {
+      "id": "honda",
+      "nombre": "Honda",
+      "costo_desbloqueo": 10000,
+      "costo_base": 250,
+      "valor_base": 64,
+      "tiempo": 4.0,
+      "color": "#c9a46b"
+    },
+    {
+      "id": "atlatl",
+      "nombre": "Lanzadardos",
+      "costo_desbloqueo": 150000,
+      "costo_base": 2000,
+      "valor_base": 512,
+      "tiempo": 5.0,
+      "color": "#7a9a5b"
+    },
+    {
+      "id": "arco",
+      "nombre": "Arco y flechas",
+      "costo_desbloqueo": 1500000,
+      "costo_base": 16000,
+      "valor_base": 4096,
+      "tiempo": 6.0,
+      "color": "#a0522d"
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 240,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Fogata en la entrada: clientes 25% más rápido",
+      "costo": 1200,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2lanza",
+      "nombre": "Puntas endurecidas al fuego: x2 Lanza de madera",
+      "costo": 3600,
+      "tipo": "ganancia",
+      "estacion": "lanza",
+      "valor": 2
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 9000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2hacha",
+      "nombre": "Sílex de calidad: x2 Hacha de mano",
+      "costo": 30000,
+      "tipo": "ganancia",
+      "estacion": "hacha",
+      "valor": 2
+    },
+    {
+      "id": "vel1",
+      "nombre": "Sandalias de cuero: dependientes 30% más rápido",
+      "costo": 72000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Mostrador más largo: +2 clientes en la fila",
+      "costo": 180000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2honda",
+      "nombre": "Cuerda trenzada: x2 Honda",
+      "costo": 480000,
+      "tipo": "ganancia",
+      "estacion": "honda",
+      "valor": 2
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 1200000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Pinturas rupestres: clientes 25% más rápido",
+      "costo": 3000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2atlatl",
+      "nombre": "Dardos emplumados: x2 Lanzadardos",
+      "costo": 9000000,
+      "tipo": "ganancia",
+      "estacion": "atlatl",
+      "valor": 2
+    },
+    {
+      "id": "x2arco",
+      "nombre": "Arco reforzado: x2 Arco y flechas",
+      "costo": 72000000,
+      "tipo": "ganancia",
+      "estacion": "arco",
+      "valor": 2
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Fama en la tribu: x2 todas las ganancias",
+      "costo": 240000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube la Lanza de madera al nivel 10",
+      "tipo": "nivel",
+      "estacion": "lanza",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea el Hacha de mano",
+      "tipo": "nivel",
+      "estacion": "hacha",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube el Hacha de mano al nivel 10",
+      "tipo": "nivel",
+      "estacion": "hacha",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube la Lanza de madera al nivel 25",
+      "tipo": "nivel",
+      "estacion": "lanza",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea la Honda",
+      "tipo": "nivel",
+      "estacion": "honda",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 20K monedas en total",
+      "tipo": "ganado",
+      "meta": 20000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube la Honda al nivel 10",
+      "tipo": "nivel",
+      "estacion": "honda",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea el Lanzadardos",
+      "tipo": "nivel",
+      "estacion": "atlatl",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube el Hacha de mano al nivel 25",
+      "tipo": "nivel",
+      "estacion": "hacha",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube el Lanzadardos al nivel 10",
+      "tipo": "nivel",
+      "estacion": "atlatl",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea el Arco y flechas",
+      "tipo": "nivel",
+      "estacion": "arco",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube el Arco y flechas al nivel 10",
+      "tipo": "nivel",
+      "estacion": "arco",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    }
+  ]
+}
