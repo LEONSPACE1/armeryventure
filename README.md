@@ -12,7 +12,7 @@ Prototipo de la **Prehistoria** (época 1 de 8):
 - Clientes con pedidos, dependientes que llevan las armas al mostrador.
 - 13 mejoras, 15 misiones con estrellas y portal a la siguiente época.
 - Guardado automático cada 10 s y ganancias fuera de línea (50 % del ritmo, máximo 2 h).
-- Arte provisional dibujado con figuras simples.
+- Arte procedural (sin imágenes): cueva con antorchas, personajes animados (caminar, respirar, parpadear), armeros que martillan con chispas, monedas que vuelan al contador e interfaz con relieve. Todo el dibujo está en `scripts/art.gd`.
 
 ## Cómo abrirlo en tu computador
 
