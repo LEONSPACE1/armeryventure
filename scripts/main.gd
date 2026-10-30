@@ -23,8 +23,8 @@ const BOTTOM_BAR_H := 150.0    # barra inferior de botones
 const STATION_SHEET_H := 330.0 # panel desplegable de la estación
 const WALL_SCREEN_Y := 250.0   # dónde queda la base de la pared del fondo en pantalla
 const MAX_FLYING_COINS := 14
-const PERSONAL_SPACE := 0.7   # distancia mínima entre personajes
-const SIDE_STEPS := [0.0, -0.7, 0.7, -1.4, 1.4]
+const PERSONAL_SPACE := 0.9   # distancia mínima entre personajes (con sombreros y cascos)
+const SIDE_STEPS := [0.0, -0.9, 0.9, -1.8, 1.8]
 
 const CREAM := Color(1, 0.95, 0.85)
 const GOLD := Color(1, 0.82, 0.3)

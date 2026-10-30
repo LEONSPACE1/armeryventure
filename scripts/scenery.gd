@@ -2,6 +2,9 @@
 # Se elige con "escenario" en el tema del archivo de la época.
 class_name Scenery
 
+# Centro de los rincones del fondo, entre el banco de la orilla y la pared lateral
+const CORNER_X := 4.77
+
 
 # Construye el escenario y devuelve las luces de fuego (para hacerlas titilar).
 static func build(world: Node3D, back_z: float, spot_z: float) -> Array:
@@ -30,6 +33,8 @@ static func build(world: Node3D, back_z: float, spot_z: float) -> Array:
 static func _flame(world: Node3D, at: Vector3, lights: Array, size := 1.0, energy := 0.55) -> void:
 	Art3D.sphere(world, 0.17 * size, at, Color(0.95, 0.45, 0.12), 0.9)
 	Art3D.sphere(world, 0.09 * size, at + Vector3(0, 0.1, 0.05) * size, Color(1, 0.75, 0.4), 1.1)
+	# Halo: resplandor suave alrededor de la llama
+	Art3D.sphere(world, 0.38 * size, at + Vector3(0, 0.05, 0), Color(1, 0.6, 0.25, 0.16), 1.0)
 	var light := OmniLight3D.new()
 	light.position = at + Vector3(0, 0.12, 0.6)
 	light.light_color = Color(1, 0.6, 0.25)
@@ -151,38 +156,40 @@ static func _bronze_workshop(world: Node3D, back_z: float, spot_z: float, lights
 		for a in 3:
 			var leg := Art3D.cyl(world, 0.025, 0.025, 1.3, base + Vector3(cos(a * TAU / 3.0) * 0.15, 0.62, sin(a * TAU / 3.0) * 0.15), Art3D.BRONZE.darkened(0.3), 4)
 			leg.rotation = Vector3(sin(a * TAU / 3.0) * 0.2, 0, -cos(a * TAU / 3.0) * 0.2)
-		Art3D.cyl(world, 0.32, 0.18, 0.22, base + Vector3(0, 1.3, 0), Art3D.BRONZE, 10)
+		Art3D.cyl(world, 0.32, 0.18, 0.22, base + Vector3(0, 1.3, 0), Art3D.BRONZE, 10, 0.7)
 		_flame(world, base + Vector3(0, 1.5, 0), lights, 1.1, 0.45)
-	# Horno de fundición (izquierda) con boca encendida y crisol
-	var oven := Vector3(-4.2, 0, back_z + 1.7)
-	Art3D.cyl(world, 0.55, 0.85, 1.7, oven + Vector3(0, 0.85, 0), Color(0.6, 0.38, 0.25), 10)
-	Art3D.cyl(world, 0.2, 0.3, 0.6, oven + Vector3(0, 1.95, 0), Color(0.5, 0.32, 0.22), 8)
-	var mouth := Art3D.sphere(world, 0.3, oven + Vector3(0.0, 0.5, 0.72), Color(0.95, 0.4, 0.1), 1.2)
+	# Horno de fundición (rincón izquierdo) con boca encendida y crisol
+	var oven := Vector3(-CORNER_X, 0, back_z + 0.9)
+	Art3D.cyl(world, 0.3, 0.38, 1.5, oven + Vector3(0, 0.75, 0), Color(0.6, 0.38, 0.25), 10)
+	Art3D.cyl(world, 0.14, 0.2, 0.5, oven + Vector3(0, 1.75, 0), Color(0.5, 0.32, 0.22), 8)
+	var mouth := Art3D.sphere(world, 0.18, oven + Vector3(0.0, 0.45, 0.33), Color(0.95, 0.4, 0.1), 1.2)
 	mouth.scale = Vector3(1.0, 0.8, 0.35)
-	_flame(world, oven + Vector3(0, 2.3, 0), lights, 0.8, 0.35)
-	Art3D.cyl(world, 0.2, 0.14, 0.25, oven + Vector3(0.95, 0.12, 0.5), Color(0.35, 0.3, 0.28), 8)
-	Art3D.sphere(world, 0.13, oven + Vector3(0.95, 0.25, 0.5), Color(0.95, 0.55, 0.15), 0.9)
-	# Ánforas y lingotes (derecha)
-	var store := Vector3(4.5, 0, back_z + 1.4)
-	for k in 4:
-		var p := store + Vector3((k % 2) * 0.55 - 0.25, 0, (k / 2) * 0.6)
-		var body := Art3D.sphere(world, 0.3, p + Vector3(0, 0.45, 0), Color(0.7, 0.42, 0.26).darkened(k * 0.05))
+	_flame(world, oven + Vector3(0, 2.1, 0), lights, 0.7, 0.35)
+	Art3D.cyl(world, 0.17, 0.12, 0.22, oven + Vector3(0, 0.11, 0.95), Color(0.35, 0.3, 0.28), 8)
+	Art3D.sphere(world, 0.11, oven + Vector3(0, 0.22, 0.95), Color(0.95, 0.55, 0.15), 0.9)
+	# Ánforas y lingotes (rincón derecho)
+	for k in 2:
+		var p := Vector3(CORNER_X, 0, back_z + 0.6 + k * 0.65)
+		var body := Art3D.sphere(world, 0.26, p + Vector3(0, 0.4, 0), Color(0.7, 0.42, 0.26).darkened(k * 0.08))
 		body.scale = Vector3(1, 1.45, 1)
-		Art3D.cyl(world, 0.1, 0.12, 0.2, p + Vector3(0, 0.98, 0), Color(0.65, 0.4, 0.25), 8)
+		Art3D.cyl(world, 0.09, 0.1, 0.18, p + Vector3(0, 0.86, 0), Color(0.65, 0.4, 0.25), 8)
 	for k in 5:
-		Art3D.box(world, Vector3(0.4, 0.1, 0.18), store + Vector3(-0.1 + (k % 3) * 0.1, 0.05 + (k / 3) * 0.1, 1.5), Art3D.BRONZE.darkened(0.1))
+		Art3D.box(world, Vector3(0.36, 0.09, 0.16), Vector3(CORNER_X, 0.05 + (k / 3) * 0.09, back_z + 1.75 + (k % 3) * 0.17), Art3D.BRONZE.darkened(0.1), 0.0, 0.6)
 
 
 # --- Piezas compartidas ---------------------------------------------------------
 
 # Lámpara eléctrica: bombillo que brilla y luz fija (no titila como el fuego).
-static func _lamp(world: Node3D, at: Vector3, color: Color, energy := 0.4, size := 1.0) -> void:
-	Art3D.sphere(world, 0.12 * size, at, color.lerp(Color.WHITE, 0.4), 0.9)
+# Con size = 0 solo pone la luz (para piezas que ya brillan, como el reactor).
+static func _lamp(world: Node3D, at: Vector3, color: Color, energy := 0.7, size := 1.0) -> void:
+	if size > 0.0:
+		Art3D.sphere(world, 0.12 * size, at, color.lerp(Color.WHITE, 0.4), 1.2)
+		Art3D.sphere(world, 0.32 * size, at, Color(color.r, color.g, color.b, 0.16), 1.0)
 	var light := OmniLight3D.new()
 	light.position = at + Vector3(0, -0.1, 0.6)
 	light.light_color = color
 	light.light_energy = energy
-	light.omni_range = 4.5
+	light.omni_range = 5.5
 	world.add_child(light)
 
 
@@ -230,7 +237,7 @@ static func _brazier(world: Node3D, base: Vector3, metal: Color, lights: Array, 
 	for a in 3:
 		var leg := Art3D.cyl(world, 0.025, 0.025, 1.3, base + Vector3(cos(a * TAU / 3.0) * 0.15, 0.62, sin(a * TAU / 3.0) * 0.15), metal.darkened(0.3), 4)
 		leg.rotation = Vector3(sin(a * TAU / 3.0) * 0.2, 0, -cos(a * TAU / 3.0) * 0.2)
-	Art3D.cyl(world, 0.32, 0.18, 0.22, base + Vector3(0, 1.3, 0), metal, 10)
+	Art3D.cyl(world, 0.32, 0.18, 0.22, base + Vector3(0, 1.3, 0), metal, 10, 0.7)
 	_flame(world, base + Vector3(0, 1.5, 0), lights, 1.1, energy)
 
 
@@ -238,9 +245,9 @@ static func _brazier(world: Node3D, base: Vector3, metal: Color, lights: Array, 
 static func _round_shield(world: Node3D, at: Vector3, face: Color, rim: Color, r := 0.35) -> void:
 	var d := Art3D.cyl(world, r, r, 0.06, at, face, 12)
 	d.rotation.x = PI / 2
-	var t := Art3D.torus(world, r * 0.88, r * 1.05, at, rim)
+	var t := Art3D.torus(world, r * 0.88, r * 1.05, at, rim, 0.7)
 	t.rotation.x = PI / 2
-	Art3D.sphere(world, r * 0.25, at + Vector3(0, 0, 0.04), rim)
+	Art3D.sphere(world, r * 0.25, at + Vector3(0, 0, 0.04), rim, 0.0, 0.7)
 
 
 # Barril de madera con aros.
@@ -248,7 +255,7 @@ static func _barrel(world: Node3D, at: Vector3, wood := Color(0.5, 0.33, 0.18)) 
 	Art3D.cyl(world, 0.26, 0.26, 0.7, at + Vector3(0, 0.35, 0), wood, 10)
 	Art3D.sphere(world, 0.3, at + Vector3(0, 0.35, 0), wood).scale = Vector3(1, 1.05, 1)
 	for y in [0.12, 0.58]:
-		Art3D.cyl(world, 0.3, 0.3, 0.05, at + Vector3(0, y, 0), Color(0.3, 0.3, 0.32), 10)
+		Art3D.cyl(world, 0.3, 0.3, 0.05, at + Vector3(0, y, 0), Color(0.3, 0.3, 0.32), 10, 0.7)
 
 
 static func _crate(world: Node3D, at: Vector3, s: float, c: Color) -> void:
@@ -284,20 +291,18 @@ static func _temple(world: Node3D, back_z: float, spot_z: float, lights: Array) 
 	_round_shield(world, Vector3(3.8, 2.6, back_z + 0.08), Color(0.2, 0.3, 0.55), Art3D.BRONZE)
 	for tx in [-1.55, 1.55]:
 		_brazier(world, Vector3(tx, 0.0, back_z + 0.5), Art3D.BRONZE, lights, 0.42)
-	# Estatua sobre pedestal (izquierda)
-	var st := Vector3(-4.3, 0, back_z + 1.7)
-	Art3D.box(world, Vector3(0.9, 0.7, 0.9), st + Vector3(0, 0.35, 0), marble.darkened(0.1))
-	Art3D.cyl(world, 0.22, 0.32, 1.1, st + Vector3(0, 1.25, 0), marble, 8)
-	Art3D.sphere(world, 0.22, st + Vector3(0, 2.0, 0), marble)
-	Art3D.cyl(world, 0.02, 0.02, 1.5, st + Vector3(0.35, 1.6, 0), marble.darkened(0.15), 4)
-	_round_shield(world, st + Vector3(-0.32, 1.3, 0.1), marble.darkened(0.05), marble.darkened(0.15), 0.25)
-	# Ánforas (derecha)
-	var store := Vector3(4.5, 0, back_z + 1.4)
-	for k in 4:
-		var p := store + Vector3((k % 2) * 0.55 - 0.25, 0, (k / 2) * 0.6)
-		var body := Art3D.sphere(world, 0.3, p + Vector3(0, 0.45, 0), Color(0.78, 0.45, 0.25).darkened(k * 0.05))
+	# Estatua sobre pedestal (rincón izquierdo)
+	var st := Vector3(-CORNER_X, 0, back_z + 1.1)
+	Art3D.box(world, Vector3(0.65, 0.6, 0.65), st + Vector3(0, 0.3, 0), marble.darkened(0.1))
+	Art3D.cyl(world, 0.17, 0.24, 1.0, st + Vector3(0, 1.1, 0), marble, 8)
+	Art3D.sphere(world, 0.17, st + Vector3(0, 1.75, 0), marble)
+	Art3D.cyl(world, 0.02, 0.02, 1.4, st + Vector3(0.24, 1.4, 0), marble.darkened(0.15), 4)
+	# Ánforas (rincón derecho)
+	for k in 3:
+		var p := Vector3(CORNER_X, 0, back_z + 0.6 + k * 0.62)
+		var body := Art3D.sphere(world, 0.26, p + Vector3(0, 0.4, 0), Color(0.78, 0.45, 0.25).darkened(k * 0.05))
 		body.scale = Vector3(1, 1.45, 1)
-		Art3D.cyl(world, 0.1, 0.12, 0.2, p + Vector3(0, 0.98, 0), Color(0.15, 0.12, 0.1), 8)
+		Art3D.cyl(world, 0.09, 0.1, 0.18, p + Vector3(0, 0.86, 0), Color(0.15, 0.12, 0.1), 8)
 	# Afuera: olivos y cipreses
 	for k in 10:
 		var x := rng.randf_range(2.2, 5.0) * (1.0 if k % 2 == 0 else -1.0)
@@ -343,22 +348,22 @@ static func _castle(world: Node3D, back_z: float, spot_z: float, lights: Array) 
 		Art3D.cyl(world, 0.06, 0.08, 0.7, base, Color(0.35, 0.22, 0.12), 6)
 		Art3D.cyl(world, 0.12, 0.08, 0.12, base + Vector3(0, 0.3, 0), Color(0.3, 0.3, 0.32), 6)
 		_flame(world, base + Vector3(0, 0.48, 0), lights, 1.0, 0.5)
-	# Chimenea (izquierda)
-	var fp := Vector3(-4.3, 0, back_z + 1.3)
-	Art3D.box(world, Vector3(1.6, 1.6, 0.9), fp + Vector3(0, 0.8, 0), stone.darkened(0.05))
-	Art3D.box(world, Vector3(1.0, 1.0, 0.2), fp + Vector3(0, 0.5, 0.4), Color(0.12, 0.1, 0.09))
-	Art3D.box(world, Vector3(1.8, 0.2, 1.0), fp + Vector3(0, 1.65, 0.05), stone.lightened(0.1))
+	# Chimenea en la pared lateral izquierda, con la boca hacia el salón
+	var fp := Vector3(-5.0, 0, back_z + 1.3)
+	Art3D.box(world, Vector3(0.6, 1.6, 1.5), fp + Vector3(0, 0.8, 0), stone.darkened(0.05))
+	Art3D.box(world, Vector3(0.1, 0.9, 0.9), fp + Vector3(0.28, 0.45, 0), Color(0.12, 0.1, 0.09))
+	Art3D.box(world, Vector3(0.75, 0.18, 1.65), fp + Vector3(0.05, 1.62, 0), stone.lightened(0.1))
 	for k in 3:
-		Art3D.cyl(world, 0.06, 0.06, 0.6, fp + Vector3(-0.15 + k * 0.15, 0.1, 0.45), Color(0.4, 0.25, 0.12), 5).rotation.z = PI / 2
-	_flame(world, fp + Vector3(0, 0.35, 0.5), lights, 1.2, 0.4)
-	# Barril y armero con escudos (derecha)
-	var store := Vector3(4.4, 0, back_z + 1.4)
-	_barrel(world, store + Vector3(0.2, 0, 0.9))
-	Art3D.box(world, Vector3(1.2, 0.1, 0.3), store + Vector3(0, 1.3, -0.2), Color(0.35, 0.22, 0.12))
+		Art3D.cyl(world, 0.05, 0.05, 0.5, fp + Vector3(0.36, 0.08 + (k / 2) * 0.09, -0.12 + (k % 2) * 0.24), Color(0.4, 0.25, 0.12), 5).rotation.x = PI / 2
+	_flame(world, fp + Vector3(0.38, 0.32, 0), lights, 1.0, 0.4)
+	# Armero de pared con lanzas y un barril (rincón derecho)
+	var rack := Vector3(5.0, 0, back_z + 1.1)
+	Art3D.box(world, Vector3(0.12, 0.1, 1.3), rack + Vector3(0, 1.3, 0), Color(0.35, 0.22, 0.12))
+	Art3D.box(world, Vector3(0.12, 0.1, 1.3), rack + Vector3(0, 0.3, 0), Color(0.35, 0.22, 0.12))
 	for k in 3:
-		Art3D.cyl(world, 0.02, 0.02, 1.5, store + Vector3(-0.4 + k * 0.4, 0.75, -0.15), Color(0.55, 0.38, 0.2), 4)
-		Art3D.cyl(world, 0.0, 0.05, 0.18, store + Vector3(-0.4 + k * 0.4, 1.58, -0.15), Color(0.7, 0.72, 0.76), 4)
-	_round_shield(world, store + Vector3(-0.2, 0.5, 0.2), Color(0.6, 0.15, 0.15), Color(0.6, 0.6, 0.62), 0.3)
+		Art3D.cyl(world, 0.02, 0.02, 1.5, rack + Vector3(-0.1, 0.75, -0.45 + k * 0.45), Color(0.55, 0.38, 0.2), 4)
+		Art3D.cyl(world, 0.0, 0.05, 0.18, rack + Vector3(-0.1, 1.58, -0.45 + k * 0.45), Art3D.STEEL, 4, 0.7)
+	_barrel(world, Vector3(CORNER_X, 0, back_z + 2.1))
 	# Afuera: pasto y pinos
 	for k in 10:
 		var x := rng.randf_range(2.2, 5.0) * (1.0 if k % 2 == 0 else -1.0)
@@ -410,26 +415,22 @@ static func _harbor(world: Node3D, back_z: float, spot_z: float, lights: Array) 
 		Art3D.box(world, Vector3(0.3, 0.04, 0.3), base + Vector3(0, 0.2, 0), Color(0.2, 0.2, 0.2))
 		Art3D.box(world, Vector3(0.3, 0.04, 0.3), base + Vector3(0, -0.2, 0), Color(0.2, 0.2, 0.2))
 		_flame(world, base, lights, 0.7, 0.42)
-	# Cañón con pirámide de balas (izquierda)
-	var cn := Vector3(-4.3, 0, back_z + 1.7)
-	Art3D.box(world, Vector3(0.7, 0.35, 1.1), cn + Vector3(0, 0.3, 0), Color(0.45, 0.3, 0.18))
-	var tube := Art3D.cyl(world, 0.13, 0.18, 1.4, cn + Vector3(0, 0.6, 0.3), Color(0.25, 0.26, 0.28), 10)
+	# Cañón apuntando al salón con balas apiladas (rincón izquierdo)
+	var cn := Vector3(-CORNER_X, 0, back_z + 0.9)
+	Art3D.box(world, Vector3(0.5, 0.3, 0.9), cn + Vector3(0, 0.28, 0), Color(0.45, 0.3, 0.18))
+	var tube := Art3D.cyl(world, 0.1, 0.15, 1.1, cn + Vector3(0, 0.55, 0.15), Art3D.DARK_IRON, 10, 0.7)
 	tube.rotation.x = PI / 2 - 0.15
 	for sx in [-1, 1]:
-		var wh := Art3D.cyl(world, 0.22, 0.22, 0.06, cn + Vector3(sx * 0.38, 0.22, 0.2), Color(0.35, 0.22, 0.12), 10)
+		var wh := Art3D.cyl(world, 0.2, 0.2, 0.06, cn + Vector3(sx * 0.28, 0.2, 0.15), Color(0.35, 0.22, 0.12), 10)
 		wh.rotation.z = PI / 2
-	for k in 6:
-		var row := 0 if k < 3 else (1 if k < 5 else 2)
-		var i: int = k - [0, 3, 5][row]
-		Art3D.sphere(world, 0.12, cn + Vector3(0.75 + i * 0.24 + row * 0.12, 0.12 + row * 0.2, 1.0), Color(0.2, 0.2, 0.22))
-	# Barriles de pólvora y cajas (derecha)
-	var store := Vector3(4.4, 0, back_z + 1.4)
-	_barrel(world, store + Vector3(-0.3, 0, 0))
-	_barrel(world, store + Vector3(0.35, 0, 0.1))
-	_barrel(world, store + Vector3(0.0, 0.72, 0.05))
-	_crate(world, store + Vector3(0.1, 0, 1.0), 0.6, Color(0.6, 0.45, 0.28))
-	# Rollos de cuerda
-	Art3D.torus(world, 0.12, 0.3, store + Vector3(-0.5, 0.06, 1.1), Color(0.8, 0.7, 0.5))
+	for k in 3:
+		Art3D.sphere(world, 0.11, cn + Vector3(-0.22 + k * 0.22, 0.11, 1.15), Art3D.DARK_IRON, 0.0, 0.7)
+	Art3D.sphere(world, 0.11, cn + Vector3(-0.11, 0.3, 1.15), Art3D.DARK_IRON, 0.0, 0.7)
+	# Barriles de pólvora, caja y cuerda (rincón derecho)
+	_barrel(world, Vector3(CORNER_X, 0, back_z + 0.6))
+	_barrel(world, Vector3(CORNER_X, 0, back_z + 1.3))
+	_crate(world, Vector3(CORNER_X, 0, back_z + 2.0), 0.5, Color(0.6, 0.45, 0.28))
+	Art3D.torus(world, 0.08, 0.2, Vector3(CORNER_X, 0.54, back_z + 2.0), Color(0.8, 0.7, 0.5))
 
 
 # --- Revolución Industrial: fábrica de ladrillo ----------------------------------
@@ -453,34 +454,33 @@ static func _factory(world: Node3D, back_z: float, spot_z: float, lights: Array)
 	# Engranajes en la pared
 	for g in [[-3.4, 2.7, 0.55], [-2.75, 2.1, 0.3], [3.4, 2.6, 0.5]]:
 		var at := Vector3(g[0], g[1], back_z + 0.1)
-		Art3D.cyl(world, g[2], g[2], 0.08, at, Color(0.45, 0.42, 0.38), 12).rotation.x = PI / 2
+		Art3D.cyl(world, g[2], g[2], 0.08, at, Color(0.45, 0.42, 0.38), 12, 0.6).rotation.x = PI / 2
 		for k in 8:
 			var a := k * TAU / 8.0
 			var tooth := Art3D.box(world, Vector3(0.14, 0.14, 0.08), at + Vector3(cos(a), sin(a), 0) * g[2], Color(0.45, 0.42, 0.38))
 			tooth.rotation.z = a
 		Art3D.sphere(world, g[2] * 0.25, at + Vector3(0, 0, 0.05), iron)
 	# Tubería a lo largo de la pared
-	var pipe := Art3D.cyl(world, 0.1, 0.1, 13.0, Vector3(0, 3.7, back_z + 0.3), Color(0.55, 0.4, 0.25), 8)
+	var pipe := Art3D.cyl(world, 0.1, 0.1, 13.0, Vector3(0, 3.7, back_z + 0.3), Color(0.55, 0.4, 0.25), 8, 0.7)
 	pipe.rotation.z = PI / 2
 	# Lámparas colgantes de bombillo
 	for tx in [-1.55, 1.55]:
 		Art3D.cyl(world, 0.01, 0.01, 1.2, Vector3(tx, 3.4, back_z + 0.6), Color(0.1, 0.1, 0.1), 4)
 		Art3D.cyl(world, 0.05, 0.25, 0.15, Vector3(tx, 2.8, back_z + 0.6), Color(0.2, 0.35, 0.3), 8)
-		_lamp(world, Vector3(tx, 2.68, back_z + 0.6), Color(1, 0.75, 0.45), 0.42)
-	# Horno de carbón (izquierda)
-	var fn := Vector3(-4.3, 0, back_z + 1.5)
-	Art3D.box(world, Vector3(1.3, 1.4, 1.1), fn + Vector3(0, 0.7, 0), iron.lightened(0.05))
-	Art3D.cyl(world, 0.22, 0.22, 3.0, fn + Vector3(0, 2.8, -0.2), iron, 8)
-	Art3D.box(world, Vector3(0.6, 0.45, 0.05), fn + Vector3(0, 0.55, 0.56), Color(0.95, 0.4, 0.1), 1.0)
-	_flame(world, fn + Vector3(0, 0.5, 0.65), lights, 0.7, 0.35)
-	for k in 6:
-		Art3D.sphere(world, 0.14, fn + Vector3(0.8 + rng.randf() * 0.3, 0.08 + (k / 3) * 0.12, 0.6 + (k % 3) * 0.15), Color(0.12, 0.12, 0.13))
-	# Cajas y yunque mecánico (derecha)
-	var store := Vector3(4.4, 0, back_z + 1.4)
-	_crate(world, store + Vector3(-0.3, 0, 0), 0.7, Color(0.62, 0.48, 0.3))
-	_crate(world, store + Vector3(0.45, 0, 0.1), 0.6, Color(0.55, 0.42, 0.26))
-	_crate(world, store + Vector3(-0.2, 0.7, 0.0), 0.5, Color(0.6, 0.46, 0.28))
-	_barrel(world, store + Vector3(0.2, 0, 1.1), Color(0.3, 0.35, 0.3))
+		_lamp(world, Vector3(tx, 2.68, back_z + 0.6), Color(1, 0.75, 0.45), 0.6)
+	# Horno de carbón (rincón izquierdo)
+	var fn := Vector3(-CORNER_X, 0, back_z + 1.0)
+	Art3D.box(world, Vector3(0.7, 1.3, 0.9), fn + Vector3(0, 0.65, 0), iron.lightened(0.05))
+	Art3D.cyl(world, 0.17, 0.17, 3.0, fn + Vector3(0, 2.7, -0.2), iron, 8)
+	Art3D.box(world, Vector3(0.4, 0.35, 0.05), fn + Vector3(0, 0.5, 0.46), Color(0.95, 0.4, 0.1), 1.0)
+	_flame(world, fn + Vector3(0, 0.45, 0.55), lights, 0.6, 0.35)
+	for k in 5:
+		Art3D.sphere(world, 0.12, fn + Vector3(-0.15 + (k % 3) * 0.15, 0.08 + (k / 3) * 0.1, 0.95), Color(0.12, 0.12, 0.13))
+	# Cajas y un barril (rincón derecho)
+	_crate(world, Vector3(CORNER_X, 0, back_z + 0.6), 0.6, Color(0.62, 0.48, 0.3))
+	_crate(world, Vector3(CORNER_X, 0.6, back_z + 0.6), 0.45, Color(0.6, 0.46, 0.28))
+	_crate(world, Vector3(CORNER_X, 0, back_z + 1.3), 0.55, Color(0.55, 0.42, 0.26))
+	_barrel(world, Vector3(CORNER_X, 0, back_z + 2.05), Color(0.3, 0.35, 0.3))
 	# Afuera: adoquines y faroles de gas
 	for k in 40:
 		var p := Vector3(rng.randf_range(-6, 6), 0.02, rng.randf_range(9, 17))
@@ -488,7 +488,8 @@ static func _factory(world: Node3D, back_z: float, spot_z: float, lights: Array)
 			Art3D.box(world, Vector3(0.4, 0.04, 0.3), p, Color(0.4, 0.38, 0.36).lightened(rng.randf() * 0.15))
 	for sx in [-2.3, 2.3]:
 		Art3D.cyl(world, 0.05, 0.07, 2.2, Vector3(sx, 1.1, 11.0), iron, 6)
-		Art3D.box(world, Vector3(0.25, 0.3, 0.25), Vector3(sx, 2.35, 11.0), Color(0.95, 0.85, 0.6), 0.6)
+		Art3D.box(world, Vector3(0.25, 0.3, 0.25), Vector3(sx, 2.35, 11.0), Color(0.95, 0.85, 0.6), 0.9)
+		_lamp(world, Vector3(sx, 2.35, 10.4), Color(1, 0.8, 0.5), 0.5, 0.0)
 
 
 # --- Era moderna: tienda táctica ------------------------------------------------
@@ -511,21 +512,21 @@ static func _shop(world: Node3D, back_z: float, spot_z: float, lights: Array) ->
 	# Paneles de luz en el techo (pared alta) y luces fijas
 	for x in [-4.0, 0.0, 4.0]:
 		Art3D.box(world, Vector3(2.4, 0.15, 0.6), Vector3(x, 4.5, back_z + 0.1), Color(0.8, 0.83, 0.88), 0.3)
+	_lamp(world, Vector3(0, 4.3, back_z + 0.2), Color(0.9, 0.95, 1.0), 0.5, 0.0)
 	for tx in [-1.55, 1.55]:
-		_lamp(world, Vector3(tx, 3.2, back_z + 0.4), Color(0.9, 0.95, 1.0), 0.32, 0.8)
-	# Vitrina de vidrio (izquierda)
-	var vt := Vector3(-4.3, 0, back_z + 1.6)
-	Art3D.box(world, Vector3(1.4, 0.8, 0.8), vt + Vector3(0, 0.4, 0), Color(0.3, 0.32, 0.35))
-	Art3D.box(world, Vector3(1.4, 0.7, 0.8), vt + Vector3(0, 1.15, 0), Color(0.7, 0.85, 0.95, 0.35))
+		_lamp(world, Vector3(tx, 3.2, back_z + 0.4), Color(0.9, 0.95, 1.0), 0.5, 0.8)
+	# Vitrina de vidrio contra la pared lateral izquierda
+	var vt := Vector3(-4.85, 0, back_z + 1.2)
+	Art3D.box(world, Vector3(0.6, 0.8, 1.5), vt + Vector3(0, 0.4, 0), Color(0.3, 0.32, 0.35))
+	Art3D.box(world, Vector3(0.6, 0.7, 1.5), vt + Vector3(0, 1.15, 0), Color(0.7, 0.85, 0.95, 0.3), 0.0, 1.0)
 	for k in 2:
-		Art3D.box(world, Vector3(0.6, 0.06, 0.15), vt + Vector3(-0.3 + k * 0.6, 0.86, 0), Color(0.15, 0.15, 0.16))
-	# Estantería con cajas de munición (derecha)
-	var store := Vector3(4.4, 0, back_z + 1.3)
-	Art3D.box(world, Vector3(1.4, 2.0, 0.5), store + Vector3(0, 1.0, -0.1), Color(0.35, 0.37, 0.4))
+		Art3D.box(world, Vector3(0.15, 0.06, 0.55), vt + Vector3(0, 0.86, -0.35 + k * 0.7), Color(0.15, 0.15, 0.16), 0.0, 0.7)
+	# Estantería con cajas de munición contra la pared lateral derecha
+	var shelf := Vector3(4.9, 0, back_z + 1.2)
+	Art3D.box(world, Vector3(0.5, 2.0, 1.5), shelf + Vector3(0.05, 1.0, 0), Color(0.35, 0.37, 0.4), 0.0, 0.6)
 	for row in 3:
 		for k in 3:
-			Art3D.box(world, Vector3(0.36, 0.3, 0.36), store + Vector3(-0.42 + k * 0.42, 0.35 + row * 0.6, 0.1), Color(0.4, 0.45, 0.3).darkened(rng.randf() * 0.2))
-	_crate(world, store + Vector3(0.0, 0, 1.0), 0.55, Color(0.4, 0.45, 0.3))
+			Art3D.box(world, Vector3(0.36, 0.3, 0.36), shelf + Vector3(-0.15, 0.35 + row * 0.6, -0.45 + k * 0.45), Color(0.4, 0.45, 0.3).darkened(rng.randf() * 0.2))
 	# Afuera: asfalto con líneas y matas
 	Art3D.box(world, Vector3(40, 0.02, 9), Vector3(0, -0.005, 13.5), Color(0.25, 0.26, 0.28))
 	for k in 5:
@@ -564,22 +565,26 @@ static func _hangar(world: Node3D, back_z: float, spot_z: float, lights: Array) 
 	Art3D.box(world, Vector3(2.0, 0.08, 0.08), Vector3(0, 3.6, back_z + 0.15), neon, 0.9)
 	Art3D.box(world, Vector3(1.6, 0.9, 0.02), Vector3(0, 4.1, back_z + 0.2), Color(neon.r, neon.g, neon.b, 0.25))
 	# Luces de color fijas
-	_lamp(world, Vector3(-1.55, 3.0, back_z + 0.3), neon, 0.38, 0.8)
-	_lamp(world, Vector3(1.55, 3.0, back_z + 0.3), violet, 0.38, 0.8)
-	# Reactor de energía (izquierda)
-	var rc := Vector3(-4.3, 0, back_z + 1.6)
-	Art3D.cyl(world, 0.6, 0.7, 0.3, rc + Vector3(0, 0.15, 0), panel.darkened(0.2), 12)
-	Art3D.cyl(world, 0.3, 0.3, 1.4, rc + Vector3(0, 1.0, 0), Color(neon.r, neon.g, neon.b, 0.5), 12)
-	Art3D.cyl(world, 0.14, 0.14, 1.3, rc + Vector3(0, 1.0, 0), neon, 12)
-	Art3D.cyl(world, 0.5, 0.6, 0.25, rc + Vector3(0, 1.8, 0), panel.darkened(0.2), 12)
+	_lamp(world, Vector3(-1.55, 3.0, back_z + 0.3), neon, 0.6, 0.8)
+	_lamp(world, Vector3(1.55, 3.0, back_z + 0.3), violet, 0.6, 0.8)
+	# Luz del holograma y de las líneas del piso
+	_lamp(world, Vector3(0, 4.1, back_z + 0.3), neon, 0.4, 0.0)
+	for sx in [-1.65, 1.65]:
+		_lamp(world, Vector3(sx, 0.4, 7.0), neon, 0.45, 0.0)
+	# Reactor de energía (rincón izquierdo), con luz propia
+	var rc := Vector3(-CORNER_X, 0, back_z + 1.1)
+	Art3D.cyl(world, 0.36, 0.4, 0.25, rc + Vector3(0, 0.12, 0), panel.darkened(0.2), 12, 0.6)
+	Art3D.cyl(world, 0.24, 0.24, 1.3, rc + Vector3(0, 0.9, 0), Color(neon.r, neon.g, neon.b, 0.45), 12)
+	Art3D.cyl(world, 0.11, 0.11, 1.2, rc + Vector3(0, 0.9, 0), neon, 12).material_override = Art3D.mat(neon, 1.4)
+	Art3D.cyl(world, 0.32, 0.36, 0.22, rc + Vector3(0, 1.65, 0), panel.darkened(0.2), 12, 0.6)
 	for k in 3:
-		Art3D.torus(world, 0.34, 0.4, rc + Vector3(0, 0.55 + k * 0.4, 0), Color(0.75, 0.78, 0.85))
-	# Contenedores con franja luminosa (derecha)
-	var store := Vector3(4.4, 0, back_z + 1.4)
-	for c in [[-0.3, 0.0, 0.0, 0.7], [0.45, 0.0, 0.1, 0.6], [-0.2, 0.7, 0.0, 0.5], [0.1, 0.0, 1.0, 0.55]]:
-		var at: Vector3 = store + Vector3(c[0], c[1], c[2])
-		Art3D.box(world, Vector3(c[3], c[3], c[3]), at + Vector3(0, c[3] / 2.0, 0), Color(0.82, 0.85, 0.9))
-		Art3D.box(world, Vector3(c[3] + 0.02, 0.05, c[3] + 0.02), at + Vector3(0, c[3] * 0.5, 0), violet, 0.8)
+		Art3D.torus(world, 0.26, 0.31, rc + Vector3(0, 0.5 + k * 0.4, 0), Color(0.75, 0.78, 0.85), 0.7)
+	_lamp(world, rc + Vector3(0.3, 1.0, 0.4), neon, 0.6, 0.0)
+	# Contenedores con franja luminosa (rincón derecho)
+	for c in [[0.0, 0.6, 0.6], [0.6, 0.6, 0.45], [0.0, 1.3, 0.55], [0.0, 2.0, 0.5]]:
+		var at := Vector3(CORNER_X, c[0], back_z + c[1])
+		Art3D.box(world, Vector3(c[2], c[2], c[2]), at + Vector3(0, c[2] / 2.0, 0), Color(0.82, 0.85, 0.9), 0.0, 0.5)
+		Art3D.box(world, Vector3(c[2] + 0.02, 0.05, c[2] + 0.02), at + Vector3(0, c[2] * 0.5, 0), violet, 0.8)
 	# Afuera: plataforma oscura con balizas
 	for k in 8:
 		var sx := -3.0 if k % 2 == 0 else 3.0

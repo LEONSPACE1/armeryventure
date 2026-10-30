@@ -10,6 +10,7 @@ const FORGE_END := 0.8
 const WEAPON_SCALE := 0.7
 
 var idx := 0
+var _weapon_scale := WEAPON_SCALE
 var stock := 0      # armas listas en la estación
 var reserved := 0   # armas listas que un dependiente ya viene a recoger
 var slots: Array = []  # progreso de cada armero (0..1), -1 = libre
@@ -113,8 +114,13 @@ func _build_locked() -> void:
 	Art3D.bake(_lock_icon)
 
 
+# Separación entre armeros: caben en el banco sin tocarse (cascos incluidos).
+func _armero_gap(n: int) -> float:
+	return minf(0.85, 2.3 / maxf(n, 1))
+
+
 func _armero_x(i: int, n: int) -> float:
-	return (i - (n - 1) / 2.0) * minf(0.7, 1.8 / maxf(n, 1)) - 0.1
+	return (i - (n - 1) / 2.0) * _armero_gap(n) - 0.1
 
 
 func _sync_smiths() -> void:
@@ -128,6 +134,9 @@ func _sync_smiths() -> void:
 		for node in list:
 			node.queue_free()
 		list.clear()
+	# Con muchos armeros se achican un poco para que cada uno tenga su espacio
+	var gap := _armero_gap(n)
+	_weapon_scale = minf(WEAPON_SCALE, gap * 0.75)
 	for i in n:
 		var x := _armero_x(i, n)
 		var p := PersonScript.new()
@@ -138,7 +147,7 @@ func _sync_smiths() -> void:
 		p.beard = (idx + i) % 2 == 0
 		p.with_hammer = true
 		p.position = Vector3(x, 0, -0.85)
-		p.scale = Vector3.ONE * 0.95
+		p.scale = Vector3.ONE * minf(0.95, gap * 1.15)
 		_bench.add_child(p)
 		_smiths.append(p)
 		var id: String = GameState.station(idx)["id"]
@@ -146,7 +155,7 @@ func _sync_smiths() -> void:
 			var w := Art3D.weapon(id, baked)
 			w.rotation = Vector3(PI / 2, 0, PI / 2)
 			w.position = _rest_point(x)
-			w.scale = Vector3.ONE * WEAPON_SCALE
+			w.scale = Vector3.ONE * _weapon_scale
 			w.visible = false
 			_bench.add_child(w)
 			(_crafting if baked else _parts).append(w)
@@ -250,7 +259,7 @@ func _animate_smith(i: int, delta: float) -> void:
 		var squash := maxf(0.0, -sin(_phases[i])) * 0.15
 		whole.position = rest
 		whole.rotation = Vector3(PI / 2, 0, PI / 2)
-		whole.scale = Vector3(1.0 + squash, 1.0, 1.0 - squash) * WEAPON_SCALE
+		whole.scale = Vector3(1.0 + squash, 1.0, 1.0 - squash) * _weapon_scale
 		var glow := 0.8 + 0.4 * maxf(0.0, -sin(_phases[i]))
 		ember.scale = Vector3(1.8 * glow, 0.25, 1.1 * glow)
 	else:
@@ -259,7 +268,7 @@ func _animate_smith(i: int, delta: float) -> void:
 		var k := smoothstep(FORGE_END, FORGE_END + 0.08, p)
 		whole.position = rest.lerp(Vector3(smith.position.x, 1.85, -0.3), k)
 		whole.rotation = Vector3(PI / 2 * (1.0 - k), (p - FORGE_END) * 18.0 * k, PI / 2 * (1.0 - k) + 0.25 * k)
-		whole.scale = Vector3.ONE * WEAPON_SCALE
+		whole.scale = Vector3.ONE * _weapon_scale
 
 
 # Toque del jugador: adelanta el trabajo de todos los armeros activos.

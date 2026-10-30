@@ -63,7 +63,7 @@ func _ready() -> void:
 			_hammer = Node3D.new()
 			shoulder.add_child(_hammer)
 			Art3D.cyl(_hammer, 0.03, 0.03, 0.4, Vector3(0, -0.5, 0.18), Color(0.45, 0.28, 0.14), 5).rotation.x = PI / 2
-			Art3D.box(_hammer, Vector3(0.14, 0.14, 0.24), Vector3(0, -0.5, 0.4), Color(0.55, 0.56, 0.6))
+			Art3D.box(_hammer, Vector3(0.14, 0.14, 0.24), Vector3(0, -0.5, 0.4), Color(0.55, 0.56, 0.6), 0.0, 0.7)
 			Art3D.bake(_hammer)
 		_arms.append(shoulder)
 	# Cabeza
@@ -99,7 +99,7 @@ func _ready() -> void:
 		4:
 			# Casco cónico de bronce con cubrenuca
 			var metal := Color(0.88, 0.7, 0.34)
-			var helm := Art3D.sphere(head, 0.42, Vector3(0, 0.2, -0.1), metal)
+			var helm := Art3D.sphere(head, 0.42, Vector3(0, 0.2, -0.1), metal, 0.0, 0.7)
 			helm.scale = Vector3(1.0, 0.8, 1.0)
 			Art3D.cyl(head, 0.0, 0.12, 0.22, Vector3(0, 0.6, -0.1), metal.lightened(0.2), 6)
 			Art3D.cyl(head, 0.43, 0.43, 0.06, Vector3(0, 0.18, -0.1), metal.darkened(0.35), 12)
@@ -114,7 +114,7 @@ func _ready() -> void:
 		6:
 			# Casco griego de bronce con cimera de crin
 			var gk := Color(0.86, 0.66, 0.3)
-			var gh := Art3D.sphere(head, 0.42, Vector3(0, 0.18, -0.08), gk)
+			var gh := Art3D.sphere(head, 0.42, Vector3(0, 0.18, -0.08), gk, 0.0, 0.7)
 			gh.scale = Vector3(1.0, 0.85, 1.0)
 			for side in [-1.0, 1.0]:
 				Art3D.box(head, Vector3(0.07, 0.26, 0.2), Vector3(0.36 * side, -0.02, 0.06), gk.darkened(0.12))
@@ -122,7 +122,7 @@ func _ready() -> void:
 		7:
 			# Casco romano de hierro con penacho
 			var rm := Color(0.7, 0.72, 0.76)
-			var rh := Art3D.sphere(head, 0.41, Vector3(0, 0.17, -0.08), rm)
+			var rh := Art3D.sphere(head, 0.41, Vector3(0, 0.17, -0.08), rm, 0.0, 0.7)
 			rh.scale = Vector3(1.0, 0.82, 1.0)
 			Art3D.box(head, Vector3(0.6, 0.06, 0.1), Vector3(0, 0.36, 0.26), rm.darkened(0.2))
 			Art3D.box(head, Vector3(0.75, 0.09, 0.2), Vector3(0, -0.02, -0.36), rm.darkened(0.15))
@@ -130,7 +130,7 @@ func _ready() -> void:
 		8:
 			# Yelmo medieval con protector nasal
 			var mm := Color(0.62, 0.64, 0.68)
-			var mh := Art3D.sphere(head, 0.42, Vector3(0, 0.18, -0.06), mm)
+			var mh := Art3D.sphere(head, 0.42, Vector3(0, 0.18, -0.06), mm, 0.0, 0.7)
 			mh.scale = Vector3(1.0, 0.9, 1.0)
 			Art3D.cyl(head, 0.0, 0.1, 0.14, Vector3(0, 0.6, -0.06), mm.lightened(0.15), 6)
 			Art3D.box(head, Vector3(0.06, 0.24, 0.05), Vector3(0, 0.12, 0.38), mm.darkened(0.15))
@@ -198,7 +198,7 @@ func _ready() -> void:
 		18:
 			# Casco futurista con visor luminoso
 			var wh := Color(0.9, 0.92, 0.95)
-			var fh := Art3D.sphere(head, 0.43, Vector3(0, 0.16, -0.06), wh)
+			var fh := Art3D.sphere(head, 0.43, Vector3(0, 0.16, -0.06), wh, 0.0, 0.5)
 			fh.scale = Vector3(1.0, 0.92, 1.0)
 			Art3D.box(head, Vector3(0.62, 0.11, 0.1), Vector3(0, 0.07, 0.33), Color(0.3, 0.9, 1.0), 1.2)
 			Art3D.box(head, Vector3(0.06, 0.12, 0.5), Vector3(0, 0.56, -0.08), Color(0.3, 0.9, 1.0), 0.8)
