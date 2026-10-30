@@ -290,6 +290,38 @@ static func icon(ci: CanvasItem, kind: String, xf: Transform2D, t := 0.0) -> voi
 			rrect(ci, xf, Rect2(-22, 5, 44, 12), 3, Color(0.48, 0.3, 0.16))
 			for k in 3:
 				circle(ci, xf, Vector2(-14 + k * 14, -14), 6, SKINS[k])
+		"flecha":
+			var arrow := PackedVector2Array([Vector2(0, -24), Vector2(20, -2), Vector2(8, -2), Vector2(8, 22), Vector2(-8, 22), Vector2(-8, -2), Vector2(-20, -2)])
+			poly(ci, xf * Transform2D(0, Vector2(0, 3)), arrow, Color(0, 0, 0, 0.25))
+			poly(ci, xf, arrow, Color.WHITE)
+		"portal":
+			circle(ci, xf, Vector2.ZERO, 24, Color(0.35, 0.2, 0.6))
+			for k in 3:
+				var r := 20.0 - k * 6.0
+				var a0 := t * (2.0 + k) + k
+				var pts := PackedVector2Array()
+				for j in 13:
+					var ang := a0 + j * 0.4
+					pts.append(Vector2(cos(ang), sin(ang)) * r)
+				polyline(ci, xf, pts, Color(0.7, 0.55, 1.0).lerp(Color.WHITE, k * 0.3), 3.0)
+			circle(ci, xf, Vector2.ZERO, 4, Color.WHITE)
+		"trofeo":
+			poly(ci, xf, PackedVector2Array([Vector2(-16, -20), Vector2(16, -20), Vector2(12, -2), Vector2(0, 6), Vector2(-12, -2)]), Color(1, 0.8, 0.22))
+			line(ci, xf, Vector2(-16, -14), Vector2(-22, -6), Color(1, 0.8, 0.22), 4)
+			line(ci, xf, Vector2(16, -14), Vector2(22, -6), Color(1, 0.8, 0.22), 4)
+			rrect(ci, xf, Rect2(-3, 5, 6, 9), 1, Color(0.85, 0.62, 0.15))
+			rrect(ci, xf, Rect2(-12, 14, 24, 7), 3, Color(0.6, 0.4, 0.15))
+			star(ci, xf, Vector2(0, -10), 6, Color(1, 0.97, 0.75))
+		"engranaje":
+			for k in 8:
+				var ang := k * TAU / 8.0
+				var d := Vector2(cos(ang), sin(ang))
+				line(ci, xf, d * 12.0, d * 21.0, Color(0.92, 0.88, 0.8), 8)
+			circle(ci, xf, Vector2.ZERO, 15, Color(0.92, 0.88, 0.8))
+			circle(ci, xf, Vector2.ZERO, 6, Color(0.3, 0.22, 0.15))
+		"cerrar":
+			line(ci, xf, Vector2(-12, -12), Vector2(12, 12), Color.WHITE, 6)
+			line(ci, xf, Vector2(12, -12), Vector2(-12, 12), Color.WHITE, 6)
 		"todo":
 			poly(ci, xf, PackedVector2Array([Vector2(0, -22), Vector2(16, -2), Vector2(6, -2), Vector2(6, 20), Vector2(-6, 20), Vector2(-6, -2), Vector2(-16, -2)]), Color(0.45, 0.85, 0.35))
 		_:

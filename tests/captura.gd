@@ -16,6 +16,12 @@ func _ready() -> void:
 	add_child(main)
 	for k in 3:
 		await get_tree().create_timer(4.0 + k * 2.0).timeout
+		# Segunda captura: panel de la estación; tercera: misiones desplegadas
+		if k == 1:
+			main._select(0)
+		elif k == 2:
+			main._open_window(main._missions_panel)
+		await get_tree().create_timer(0.6).timeout
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(OUT % k)
 		print("captura ", k, " draw_calls=", Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), " objetos=", Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME), " fps=", Engine.get_frames_per_second())

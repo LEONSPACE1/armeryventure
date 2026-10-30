@@ -4,6 +4,11 @@ extends Node3D
 
 const PersonScript := preload("res://scripts/person3d.gd")
 
+# Etapas de la fabricación según el progreso (0..1)
+const ASSEMBLE_END := 0.3
+const FORGE_END := 0.8
+const WEAPON_SCALE := 0.7
+
 var idx := 0
 var stock := 0      # armas listas en la estación
 var reserved := 0   # armas listas que un dependiente ya viene a recoger
@@ -12,7 +17,10 @@ var selected := false
 var _t := 0.0
 var _phases: Array = []
 var _smiths: Array = []
-var _crafting: Array = []   # arma que aparece sobre el banco por armero
+# Por armero: piezas sueltas (ensamblar), arma entera (forjar y revisar) y brasas
+var _parts: Array = []
+var _crafting: Array = []
+var _embers: Array = []
 var _stock_models: Array = []
 var _sparks: Array = []
 var _big_sparks: CPUParticles3D
@@ -54,7 +62,9 @@ func _rebuild() -> void:
 	_locked = null
 	_lock_icon = null
 	_smiths.clear()
+	_parts.clear()
 	_crafting.clear()
+	_embers.clear()
 	_sparks.clear()
 	_stock_models.clear()
 	_built_unlocked = GameState.is_unlocked(idx)
@@ -114,15 +124,10 @@ func _sync_smiths() -> void:
 		_phases.append(randf() * TAU)
 	if _smiths.size() == n:
 		return
-	for s in _smiths:
-		s.queue_free()
-	for c in _crafting:
-		c.queue_free()
-	for p in _sparks:
-		p.queue_free()
-	_smiths.clear()
-	_crafting.clear()
-	_sparks.clear()
+	for list in [_smiths, _parts, _crafting, _embers, _sparks]:
+		for node in list:
+			node.queue_free()
+		list.clear()
 	for i in n:
 		var x := _armero_x(i, n)
 		var p := PersonScript.new()
@@ -136,13 +141,25 @@ func _sync_smiths() -> void:
 		p.scale = Vector3.ONE * 0.95
 		_bench.add_child(p)
 		_smiths.append(p)
-		var w := Art3D.weapon(GameState.station(idx)["id"])
-		w.rotation = Vector3(PI / 2, 0, PI / 2)
-		w.position = Vector3(x + 0.15, 1.02, 0.05)
-		w.visible = false
-		_bench.add_child(w)
-		_crafting.append(w)
-		_sparks.append(Art3D.sparks(_bench, Vector3(x + 0.3, 1.05, -0.35), 8))
+		var id: String = GameState.station(idx)["id"]
+		for baked in [false, true]:
+			var w := Art3D.weapon(id, baked)
+			w.rotation = Vector3(PI / 2, 0, PI / 2)
+			w.position = _rest_point(x)
+			w.scale = Vector3.ONE * WEAPON_SCALE
+			w.visible = false
+			_bench.add_child(w)
+			(_crafting if baked else _parts).append(w)
+		var ember := Art3D.sphere(_bench, 0.16, _rest_point(x) + Vector3(0, -0.05, 0), Color(0.95, 0.35, 0.05), 0.9)
+		ember.scale = Vector3(1.8, 0.25, 1.1)
+		ember.visible = false
+		_embers.append(ember)
+		_sparks.append(Art3D.sparks(_bench, _rest_point(x) + Vector3(0, 0.05, 0), 8))
+
+
+# Donde se apoya el arma que fabrica el armero de la posición x
+func _rest_point(x: float) -> Vector3:
+	return Vector3(x + 0.1, 1.02, 0.05)
 
 
 func free_stock() -> int:
@@ -157,8 +174,8 @@ func crafting_count() -> int:
 	return n
 
 
-func pickup_point() -> Vector3:
-	return position + Vector3(0, 0, 0.95)
+func pickup_point(offset_x := 0.0) -> Vector3:
+	return position + Vector3(offset_x, 0, 0.95)
 
 
 func tick(delta: float, demand: int) -> void:
@@ -180,23 +197,69 @@ func tick(delta: float, demand: int) -> void:
 	for i in slots.size():
 		if slots[i] < 0.0 and free_stock() + crafting_count() < demand:
 			slots[i] = 0.0
-		var busy: bool = slots[i] >= 0.0
-		if busy:
-			var before := sin(_phases[i])
-			_phases[i] += delta * 9.0
-			if before > 0.0 and sin(_phases[i]) <= 0.0:
-				_sparks[i].restart()
+		if slots[i] >= 0.0:
 			slots[i] += delta / t
 			if slots[i] >= 1.0:
 				slots[i] = -1.0
 				stock += 1
-				busy = false
-		_smiths[i].hammer_phase = _phases[i] if busy else -1.0
-		_crafting[i].visible = busy
-		if busy:
-			_crafting[i].scale = Vector3.ONE * (0.25 + 0.3 * slots[i])
+		_animate_smith(i, delta)
 	for k in _stock_models.size():
-		_stock_models[k].visible = k < stock
+		var show := k < stock
+		if show and not _stock_models[k].visible:
+			# El arma terminada "cae" en la pila con un rebote
+			_stock_models[k].scale = Vector3.ONE * 0.1
+			_stock_models[k].create_tween().tween_property(_stock_models[k], "scale", Vector3.ONE * 0.45, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_stock_models[k].visible = show
+
+
+# Animación del armero i según la etapa: ensamblar piezas, forjar a martillazos
+# sobre las brasas y levantar el arma terminada para revisarla.
+func _animate_smith(i: int, delta: float) -> void:
+	var p: float = slots[i]
+	var smith = _smiths[i]
+	var parts: Node3D = _parts[i]
+	var whole: Node3D = _crafting[i]
+	var ember: Node3D = _embers[i]
+	var rest := _rest_point(smith.position.x)
+	parts.visible = p >= 0.0 and p < ASSEMBLE_END
+	whole.visible = p >= ASSEMBLE_END
+	ember.visible = p >= ASSEMBLE_END and p < FORGE_END
+	if p < 0.0:
+		smith.pose = PersonScript.Pose.NONE
+		return
+	smith.pose_phase = _phases[i]
+	if p < ASSEMBLE_END:
+		# Las piezas aparecen una tras otra con un pequeño salto
+		_phases[i] += delta * 7.0
+		smith.pose = PersonScript.Pose.ASSEMBLE
+		var n := parts.get_child_count()
+		var shown := p / ASSEMBLE_END * n
+		for k in n:
+			var piece: Node3D = parts.get_child(k)
+			var grow := clampf((shown - k) * 2.5, 0.0, 1.0)
+			piece.visible = grow > 0.0
+			piece.scale = Vector3.ONE * (grow * (1.0 + 0.3 * sin(grow * PI)))
+	elif p < FORGE_END:
+		var before := sin(_phases[i])
+		_phases[i] += delta * 9.0
+		smith.pose = PersonScript.Pose.HAMMER
+		var hit := before > 0.0 and sin(_phases[i]) <= 0.0
+		if hit:
+			_sparks[i].restart()
+		# Cada golpe aplasta un poco el arma y aviva las brasas
+		var squash := maxf(0.0, -sin(_phases[i])) * 0.15
+		whole.position = rest
+		whole.rotation = Vector3(PI / 2, 0, PI / 2)
+		whole.scale = Vector3(1.0 + squash, 1.0, 1.0 - squash) * WEAPON_SCALE
+		var glow := 0.8 + 0.4 * maxf(0.0, -sin(_phases[i]))
+		ember.scale = Vector3(1.8 * glow, 0.25, 1.1 * glow)
+	else:
+		_phases[i] += delta * 3.0
+		smith.pose = PersonScript.Pose.LIFT
+		var k := smoothstep(FORGE_END, FORGE_END + 0.08, p)
+		whole.position = rest.lerp(Vector3(smith.position.x, 1.85, -0.3), k)
+		whole.rotation = Vector3(PI / 2 * (1.0 - k), (p - FORGE_END) * 18.0 * k, PI / 2 * (1.0 - k) + 0.25 * k)
+		whole.scale = Vector3.ONE * WEAPON_SCALE
 
 
 # Toque del jugador: adelanta el trabajo de todos los armeros activos.

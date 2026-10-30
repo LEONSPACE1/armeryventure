@@ -67,7 +67,8 @@ static func torus(parent: Node3D, inner: float, outer: float, pos: Vector3, c: C
 
 
 # Arma de la Prehistoria, a lo largo del eje Y (de -0.6 a 0.6 aprox.).
-static func weapon(id: String) -> Node3D:
+# Con baked = false las piezas quedan sueltas (para animar el ensamblaje).
+static func weapon(id: String, baked := true) -> Node3D:
 	var w := Node3D.new()
 	var wood := Color(0.58, 0.37, 0.19)
 	var stone := Color(0.62, 0.63, 0.67)
@@ -112,7 +113,8 @@ static func weapon(id: String) -> Node3D:
 			box(arrow, Vector3(0.1, 0.12, 0.01), Vector3(0, -0.36, 0), Color(0.9, 0.3, 0.25))
 		_:
 			sphere(w, 0.2, Vector3.ZERO, stone)
-	bake(w, true)
+	if baked:
+		bake(w, true)
 	return w
 
 

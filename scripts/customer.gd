@@ -25,6 +25,10 @@ func _ready() -> void:
 	add_child(_person)
 
 
+func goal() -> Vector3:
+	return target
+
+
 func needs() -> int:
 	return remaining - incoming
 

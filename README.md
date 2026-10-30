@@ -11,6 +11,9 @@ Prototipo de la **Prehistoria** (época 1 de 8):
 - 5 estaciones (Lanza de madera, Hacha de mano, Honda, Lanzadardos, Arco y flechas) con niveles, hitos x2 y armeros extra.
 - Clientes con pedidos, dependientes que llevan las armas al mostrador.
 - 13 mejoras, 15 misiones con estrellas y portal a la siguiente época.
+- Interfaz como en Eatventure: arriba solo monedas y época; abajo una barra con Épocas, la misión actual, Misiones y Mejoras (con globos rojos cuando hay algo por hacer). Al tocar una estación se despliega su panel desde abajo; se cierra con la X o tocando el suelo.
+- Los armeros fabrican por etapas: ensamblan las piezas, forjan a martillazos sobre las brasas y levantan el arma terminada.
+- Los personajes guardan distancia entre sí y cruzan la segunda fila de bancos por los pasillos.
 - Guardado automático cada 10 s y ganancias fuera de línea (50 % del ritmo, máximo 2 h).
 - Estilo 3D low-poly isométrico hecho por código (sin modelos externos): cueva con antorchas que titilan, sombras, personajes articulados (caminar, respirar, parpadear, saltar de alegría), armeros que martillan con chispas y armas 3D sobre los bancos. Las piezas fijas se juntan en una sola malla (`Art3D.bake`) para que el celular dibuje poco. Los letreros, barras y burbujas son 2D encima de la escena.
 
