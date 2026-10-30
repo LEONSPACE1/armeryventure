@@ -324,5 +324,52 @@ static func icon(ci: CanvasItem, kind: String, xf: Transform2D, t := 0.0) -> voi
 			line(ci, xf, Vector2(12, -12), Vector2(-12, 12), Color.WHITE, 6)
 		"todo":
 			poly(ci, xf, PackedVector2Array([Vector2(0, -22), Vector2(16, -2), Vector2(6, -2), Vector2(6, 20), Vector2(-6, 20), Vector2(-6, -2), Vector2(-16, -2)]), Color(0.45, 0.85, 0.35))
+		"gema":
+			var gem := PackedVector2Array([Vector2(-20, -8), Vector2(-10, -20), Vector2(10, -20), Vector2(20, -8), Vector2(0, 22)])
+			poly(ci, xf * Transform2D(0, Vector2(0, 3)), gem, Color(0, 0, 0, 0.25))
+			poly(ci, xf, gem, Color(0.25, 0.75, 0.95))
+			poly(ci, xf, PackedVector2Array([Vector2(-20, -8), Vector2(20, -8), Vector2(0, 22)]), Color(0.15, 0.55, 0.85))
+			poly(ci, xf, PackedVector2Array([Vector2(-10, -20), Vector2(0, -8), Vector2(-20, -8)]), Color(0.7, 0.95, 1.0))
+		"ficha":
+			circle(ci, xf, Vector2(0, 2), 22, Color(0.3, 0.15, 0.45))
+			circle(ci, xf, Vector2.ZERO, 22, Color(0.6, 0.38, 0.85))
+			circle(ci, xf, Vector2.ZERO, 15, Color(0.48, 0.26, 0.72))
+			for k in 3:
+				var r := 11.0 - k * 4.0
+				var pts := PackedVector2Array()
+				for j in 10:
+					var ang := k + j * 0.55
+					pts.append(Vector2(cos(ang), sin(ang)) * r)
+				polyline(ci, xf, pts, Color(0.9, 0.8, 1.0), 2.0)
+		"cofre_madera", "cofre_plata", "cofre_oro", "cofre":
+			var body: Color = {"cofre_plata": Color(0.62, 0.66, 0.72), "cofre_oro": Color(0.95, 0.72, 0.2)}.get(kind, Color(0.6, 0.38, 0.18))
+			var trim: Color = {"cofre_plata": Color(0.35, 0.38, 0.45), "cofre_oro": Color(0.7, 0.42, 0.08)}.get(kind, Color(0.38, 0.38, 0.4))
+			rrect(ci, xf, Rect2(-24, -4, 48, 26), 4, body.darkened(0.2))
+			rrect(ci, xf, Rect2(-24, -22, 48, 20), 10, body)
+			rrect(ci, xf, Rect2(-24, -6, 48, 5), 1, trim)
+			for x in [-16.0, 13.0]:
+				rrect(ci, xf, Rect2(x, -22, 4, 44), 1, trim)
+			rrect(ci, xf, Rect2(-5, -9, 10, 12), 2, Color(1, 0.88, 0.4))
+		"maestro":
+			person(ci, xf * Transform2D(0, Vector2(0.5, 0.5), 0, Vector2(0, 24)), {"t": t, "outfit": Color(0.55, 0.25, 0.2), "apron": true, "style": 0, "mood": 1})
+			poly(ci, xf, PackedVector2Array([Vector2(-12, -18), Vector2(-12, -28), Vector2(-6, -22), Vector2(0, -30), Vector2(6, -22), Vector2(12, -28), Vector2(12, -18)]), Color(1, 0.8, 0.25))
+		"delantal":
+			poly(ci, xf, PackedVector2Array([Vector2(-10, -22), Vector2(10, -22), Vector2(10, -10), Vector2(18, -6), Vector2(16, 22), Vector2(-16, 22), Vector2(-18, -6), Vector2(-10, -10)]), Color(0.6, 0.42, 0.25))
+			rrect(ci, xf, Rect2(-8, 2, 16, 10), 2, Color(0.45, 0.3, 0.18))
+		"martillo":
+			line(ci, xf, Vector2(-14, 20), Vector2(6, -4), Color(0.5, 0.32, 0.16), 6)
+			var head := Transform2D(-0.7, Vector2(8, -8))
+			rrect(ci, xf * head, Rect2(-16, -7, 32, 14), 3, Color(0.7, 0.72, 0.76))
+		"guantes":
+			for sx in [-1.0, 1.0]:
+				var g := Transform2D(0, Vector2(sx * 11, 2))
+				rrect(ci, xf * g, Rect2(-9, -8, 18, 24), 6, Color(0.55, 0.36, 0.2))
+				for k in 3:
+					rrect(ci, xf * g, Rect2(-8 + k * 6, -20, 5, 14), 2, Color(0.55, 0.36, 0.2))
+		"gafas":
+			for sx in [-1.0, 1.0]:
+				circle(ci, xf, Vector2(sx * 12, 0), 11, Color(0.35, 0.3, 0.25))
+				circle(ci, xf, Vector2(sx * 12, 0), 8, Color(0.55, 0.85, 0.95))
+			line(ci, xf, Vector2(-4, -2), Vector2(4, -2), Color(0.35, 0.3, 0.25), 4)
 		_:
 			weapon(ci, kind, xf)
