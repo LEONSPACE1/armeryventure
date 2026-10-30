@@ -14,7 +14,10 @@ var with_hammer := false
 var walking := false
 var walk_phase := 0.0
 var carry_id := ""
-var hammer_phase := -1.0   # < 0 = no martilla
+# Postura de trabajo del armero (la fija la estación cada cuadro)
+enum Pose { NONE, ASSEMBLE, HAMMER, LIFT }
+var pose := Pose.NONE
+var pose_phase := 0.0
 var happy := 0.0           # 0..1, salto de alegría
 
 var _t := 0.0
@@ -26,6 +29,7 @@ var _arms: Array = []
 var _eyes: Node3D
 var _carry: Node3D
 var _carry_shown := ""
+var _hammer: Node3D
 
 
 func _ready() -> void:
@@ -56,8 +60,11 @@ func _ready() -> void:
 		Art3D.cyl(shoulder, 0.075, 0.065, 0.46, Vector3(0, -0.21, 0), skin, 6)
 		Art3D.sphere(shoulder, 0.08, Vector3(0, -0.45, 0), skin)
 		if with_hammer and side > 0:
-			Art3D.cyl(shoulder, 0.03, 0.03, 0.4, Vector3(0, -0.5, 0.18), Color(0.45, 0.28, 0.14), 5).rotation.x = PI / 2
-			Art3D.box(shoulder, Vector3(0.14, 0.14, 0.24), Vector3(0, -0.5, 0.4), Color(0.55, 0.56, 0.6))
+			_hammer = Node3D.new()
+			shoulder.add_child(_hammer)
+			Art3D.cyl(_hammer, 0.03, 0.03, 0.4, Vector3(0, -0.5, 0.18), Color(0.45, 0.28, 0.14), 5).rotation.x = PI / 2
+			Art3D.box(_hammer, Vector3(0.14, 0.14, 0.24), Vector3(0, -0.5, 0.4), Color(0.55, 0.56, 0.6))
+			Art3D.bake(_hammer)
 		_arms.append(shoulder)
 	# Cabeza
 	var head := Node3D.new()
@@ -74,13 +81,17 @@ func _ready() -> void:
 		Art3D.sphere(eye, 0.025, Vector3(0.02, 0.025, 0.045), Color(1, 1, 1))
 	Art3D.sphere(head, 0.06, Vector3(0.24, -0.1, 0.26), Color(0.95, 0.55, 0.5))
 	Art3D.sphere(head, 0.06, Vector3(-0.24, -0.1, 0.26), Color(0.95, 0.55, 0.5))
-	var cap := Art3D.sphere(head, 0.39, Vector3(0, 0.12, -0.05), hair)
-	cap.scale = Vector3(1.02, 0.62, 1.02)
+	# Pelo: casquete más alto que la cabeza para cubrir la coronilla,
+	# corrido hacia atrás para dejar libre la cara, y un flequillo.
+	var cap := Art3D.sphere(head, 0.39, Vector3(0, 0.14, -0.08), hair)
+	cap.scale = Vector3(1.05, 0.75, 1.0)
+	var fringe := Art3D.sphere(head, 0.2, Vector3(0, 0.27, 0.17), hair)
+	fringe.scale = Vector3(1.5, 0.55, 0.9)
 	match style % 4:
 		1:
 			Art3D.sphere(head, 0.15, Vector3(0, -0.05, -0.38), hair)
 		2:
-			Art3D.cyl(head, 0.385, 0.385, 0.08, Vector3(0, 0.12, 0), Color(0.85, 0.25, 0.2), 10)
+			Art3D.cyl(head, 0.42, 0.42, 0.08, Vector3(0, 0.15, -0.04), Color(0.85, 0.25, 0.2), 10)
 		3:
 			var f := Art3D.box(head, Vector3(0.05, 0.4, 0.02), Vector3(0.12, 0.38, -0.2), Color(0.95, 0.92, 0.85))
 			f.rotation.z = -0.4
@@ -118,9 +129,21 @@ func _process(delta: float) -> void:
 		var swing := sin(walk_phase) * 0.5 if walking else sin(_t * 1.5 + _seed) * 0.05
 		_arms[0].rotation.x = -swing
 		_arms[1].rotation.x = swing
-		if hammer_phase >= 0.0:
-			var raise := maxf(0.0, sin(hammer_phase))
-			_arms[1].rotation.x = lerpf(-0.6, -2.7, raise)
+		match pose:
+			Pose.ASSEMBLE:
+				# Las dos manos sobre el banco, juntando piezas por turnos
+				_arms[0].rotation.x = -1.05 + 0.3 * sin(pose_phase)
+				_arms[1].rotation.x = -1.05 - 0.3 * sin(pose_phase)
+			Pose.HAMMER:
+				var raise := maxf(0.0, sin(pose_phase))
+				_arms[0].rotation.x = -0.9
+				_arms[1].rotation.x = lerpf(-0.6, -2.7, raise)
+			Pose.LIFT:
+				# Levanta el arma terminada para revisarla
+				_arms[0].rotation.x = -2.0 + 0.1 * sin(pose_phase)
+				_arms[1].rotation.x = -2.0 + 0.1 * sin(pose_phase)
+	if _hammer:
+		_hammer.visible = pose == Pose.HAMMER or pose == Pose.NONE
 	if happy > 0.0:
 		_arms[0].rotation.z = -0.8 * sin(happy * PI)
 		_arms[1].rotation.z = 0.8 * sin(happy * PI)
