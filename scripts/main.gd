@@ -789,7 +789,7 @@ func _build_ui() -> void:
 	(_eras_panel.get_meta("content") as Control).add_child(_eras_list)
 
 	# Ajustes
-	_settings_panel = _sheet("Ajustes", 360.0)
+	_settings_panel = _sheet("Ajustes", 440.0)
 	var sv: VBoxContainer = _settings_panel.get_meta("content")
 	var note := _label("La partida se guarda sola cada 10 segundos.", 20, sv, 4)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -798,6 +798,14 @@ func _build_ui() -> void:
 		GameState.reset_game()
 		_close_windows())
 	reset.modulate = Color(1, 1, 1, 0.8)
+	# Atajo para probar épocas nuevas sin jugar la anterior completa
+	var skip := _button("Ir a la siguiente época (pruebas)", sv, func():
+		for m in GameState.era["misiones"]:
+			GameState.claimed[m["id"]] = true
+		_close_windows()
+		GameState.travel())
+	skip.modulate = Color(1, 1, 1, 0.8)
+	skip.visible = GameState.has_next_era()
 
 	# Ventana emergente
 	_popup = _panel(Vector2(60, 460), Vector2(600, 300), _ui)
