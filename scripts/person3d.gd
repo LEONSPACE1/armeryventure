@@ -107,10 +107,10 @@ func _ready() -> void:
 				Art3D.box(head, Vector3(0.06, 0.22, 0.16), Vector3(0.38 * side, 0.0, 0.0), metal.darkened(0.15))
 		5:
 			# Pañuelo de tela atado a la cabeza
-			var wrap := Art3D.sphere(head, 0.41, Vector3(0, 0.15, -0.08), Color(0.92, 0.88, 0.78))
+			var wrap := Art3D.sphere(head, 0.41, Vector3(0, 0.15, -0.08), Color(0.8, 0.74, 0.62))
 			wrap.scale = Vector3(1.04, 0.72, 1.0)
 			Art3D.cyl(head, 0.425, 0.425, 0.07, Vector3(0, 0.16, -0.04), Color(0.7, 0.25, 0.2), 10)
-			Art3D.sphere(head, 0.09, Vector3(0, 0.12, -0.45), Color(0.92, 0.88, 0.78))
+			Art3D.sphere(head, 0.09, Vector3(0, 0.12, -0.45), Color(0.8, 0.74, 0.62))
 	if beard:
 		var b := Art3D.sphere(head, 0.25, Vector3(0, -0.22, 0.18), hair)
 		b.scale = Vector3(1.1, 0.8, 0.8)

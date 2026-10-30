@@ -303,13 +303,13 @@
   "tema": {
     "escenario": "taller_bronce",
     "fondo": "#2b1f17",
-    "suelo": "#a08a6c",
+    "suelo": "#8c785e",
     "camino": "#b8a382",
     "alfombra": "#8c3b2e",
     "mostrador_base": "#b08a62",
     "mostrador_tapa": "#7a5232",
     "ropa_clientes": [
-      "#e8dcc0",
+      "#cfc2a4",
       "#b8452f",
       "#c99a3a",
       "#4f6f85",
@@ -323,7 +323,7 @@
     "ropa_armeros": "#6e4a2e",
     "estilo_armeros": 5,
     "ropa_dependientes": "#3d7a5a",
-    "luz_sol": 0.38,
-    "luz_ambiente": 0.3
+    "luz_sol": 0.3,
+    "luz_ambiente": 0.25
   }
 }
