@@ -1,5 +1,6 @@
-# Estado global del juego: monedas, niveles, mejoras, misiones y guardado.
-# Toda la economía sale de data/prehistoria.json para poder ajustarla sin programar.
+# Estado global del juego: época actual, monedas, niveles, mejoras, misiones y guardado.
+# Cada época es un archivo de data/epocas/ (economía, estaciones, mejoras, misiones y
+# tema visual) para poder ajustarla o agregar épocas sin programar.
 extends Node
 
 signal coins_changed
@@ -8,10 +9,13 @@ signal upgrades_changed
 signal missions_changed
 
 const SAVE_PATH := "user://partida.json"
-const DATA_PATH := "res://data/prehistoria.json"
+const ERAS_DIR := "res://data/epocas/"
 const SAVE_EVERY := 10.0
 
+var era_ids: Array = []         # orden de las épocas (data/epocas/indice.json)
+var era_index := 0
 var era: Dictionary = {}
+var welcome := ""               # mensaje pendiente al llegar a una época nueva
 var econ: Dictionary = {}
 var coins := 0.0
 var total_earned := 0.0
@@ -27,10 +31,41 @@ var _save_timer := 0.0
 
 
 func _ready() -> void:
-	era = JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
-	econ = era["economia"]
+	era_ids = JSON.parse_string(FileAccess.get_file_as_string(ERAS_DIR + "indice.json"))
+	_load_era(0)
 	_reset_values()
 	load_game()
+
+
+func _load_era(i: int) -> void:
+	era_index = clampi(i, 0, era_ids.size() - 1)
+	era = JSON.parse_string(FileAccess.get_file_as_string(ERAS_DIR + era_ids[era_index] + ".json"))
+	econ = era["economia"]
+
+
+func theme(key: String, fallback = null):
+	return era.get("tema", {}).get(key, fallback)
+
+
+func has_next_era() -> bool:
+	return era_index + 1 < era_ids.size()
+
+
+func can_travel() -> bool:
+	return has_next_era() and stars() >= total_missions()
+
+
+# Viaje a la siguiente época: se reinician monedas, niveles, mejoras y misiones.
+func travel(reload := true) -> bool:
+	if not can_travel():
+		return false
+	_load_era(era_index + 1)
+	_reset_values()
+	welcome = "¡Bienvenido a la %s! Tu armería empieza de nuevo con armas más valiosas." % era["nombre"]
+	save_game()
+	if reload:
+		get_tree().reload_current_scene()
+	return true
 
 
 func _reset_values() -> void:
@@ -303,7 +338,8 @@ func total_missions() -> int:
 
 func save_game() -> void:
 	var data := {
-		"version": 1,
+		"version": 2,
+		"epoca": era_ids[era_index],
 		"monedas": coins,
 		"ganado": total_earned,
 		"niveles": levels,
@@ -323,6 +359,10 @@ func load_game() -> void:
 	var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
 	if typeof(data) != TYPE_DICTIONARY:
 		return
+	var saved_era := era_ids.find(data.get("epoca", era_ids[0]))
+	if saved_era > 0:
+		_load_era(saved_era)
+		_reset_values()
 	coins = float(data.get("monedas", 0.0))
 	total_earned = float(data.get("ganado", 0.0))
 	var saved: Array = data.get("niveles", [])
@@ -348,6 +388,7 @@ func claim_offline() -> void:
 
 
 func reset_game() -> void:
+	_load_era(0)
 	_reset_values()
 	save_game()
 	get_tree().reload_current_scene()

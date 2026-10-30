@@ -2,6 +2,7 @@
 class_name Art3D
 
 const SEGMENTS := 8
+const BRONZE := Color(0.8, 0.52, 0.22)
 static var _mats: Dictionary = {}
 static var _vc_mat: StandardMaterial3D
 
@@ -66,7 +67,7 @@ static func torus(parent: Node3D, inner: float, outer: float, pos: Vector3, c: C
 	return _add(parent, m, pos, c)
 
 
-# Arma de la Prehistoria, a lo largo del eje Y (de -0.6 a 0.6 aprox.).
+# Arma de cualquier época, a lo largo del eje Y (de -0.6 a 0.6 aprox.).
 # Con baked = false las piezas quedan sueltas (para animar el ensamblaje).
 static func weapon(id: String, baked := true) -> Node3D:
 	var w := Node3D.new()
@@ -111,6 +112,43 @@ static func weapon(id: String, baked := true) -> Node3D:
 			cyl(arrow, 0.015, 0.015, 0.9, Vector3(0, 0.05, 0), Color(0.75, 0.6, 0.38), 4)
 			cyl(arrow, 0.0, 0.05, 0.14, Vector3(0, 0.55, 0), stone, 4)
 			box(arrow, Vector3(0.1, 0.12, 0.01), Vector3(0, -0.36, 0), Color(0.9, 0.3, 0.25))
+		# --- Edad del Bronce ---
+		"daga":
+			var blade := cyl(w, 0.0, 0.09, 0.55, Vector3(0, 0.22, 0), BRONZE, 4)
+			blade.scale.z = 0.3
+			box(w, Vector3(0.26, 0.05, 0.07), Vector3(0, -0.07, 0), BRONZE.darkened(0.25))
+			cyl(w, 0.035, 0.04, 0.22, Vector3(0, -0.2, 0), Color(0.35, 0.22, 0.12), 6)
+			sphere(w, 0.055, Vector3(0, -0.33, 0), BRONZE.darkened(0.2))
+		"hacha_bronce":
+			cyl(w, 0.04, 0.045, 1.0, Vector3.ZERO, wood)
+			var axe := box(w, Vector3(0.32, 0.2, 0.05), Vector3(0.16, 0.36, 0), BRONZE)
+			axe.rotation.z = -0.15
+			var edge := cyl(w, 0.16, 0.16, 0.05, Vector3(0.3, 0.36, 0), BRONZE.lightened(0.15), 8)
+			edge.rotation.x = PI / 2
+			edge.scale = Vector3(0.5, 1, 1.25)
+			box(w, Vector3(0.1, 0.24, 0.1), Vector3(0, 0.36, 0), BRONZE.darkened(0.25))
+		"escudo":
+			var leather := Color(0.55, 0.36, 0.2)
+			var disc := cyl(w, 0.45, 0.45, 0.07, Vector3.ZERO, leather, 12)
+			disc.rotation.x = PI / 2
+			var rim := torus(w, 0.4, 0.47, Vector3.ZERO, BRONZE)
+			rim.rotation.x = PI / 2
+			sphere(w, 0.12, Vector3(0, 0, 0.05), BRONZE.lightened(0.1))
+			for k in 4:
+				var ang := k * PI / 2 + PI / 4
+				sphere(w, 0.035, Vector3(cos(ang) * 0.28, sin(ang) * 0.28, 0.04), BRONZE)
+		"jabalina":
+			cyl(w, 0.025, 0.03, 1.4, Vector3(0, -0.1, 0), Color(0.68, 0.5, 0.3), 6)
+			var tip := cyl(w, 0.0, 0.07, 0.28, Vector3(0, 0.74, 0), BRONZE, 4)
+			tip.scale.z = 0.45
+			cyl(w, 0.04, 0.04, 0.16, Vector3(0, 0.0, 0), Color(0.85, 0.75, 0.55), 6)
+		"espada":
+			var long := cyl(w, 0.03, 0.1, 0.95, Vector3(0, 0.38, 0), BRONZE, 4)
+			long.scale.z = 0.3
+			box(w, Vector3(0.03, 0.85, 0.035), Vector3(0, 0.36, 0), BRONZE.lightened(0.2))
+			box(w, Vector3(0.3, 0.06, 0.08), Vector3(0, -0.12, 0), BRONZE.darkened(0.25))
+			cyl(w, 0.04, 0.045, 0.24, Vector3(0, -0.27, 0), Color(0.3, 0.2, 0.12), 6)
+			sphere(w, 0.06, Vector3(0, -0.41, 0), BRONZE.darkened(0.2))
 		_:
 			sphere(w, 0.2, Vector3.ZERO, stone)
 	if baked:

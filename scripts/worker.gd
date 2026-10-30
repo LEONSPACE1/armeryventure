@@ -24,7 +24,7 @@ var _walk := 0.0
 
 func _ready() -> void:
 	_person = PersonScript.new()
-	_person.outfit = Color(0.22, 0.5, 0.62)
+	_person.outfit = Color(GameState.theme("ropa_dependientes", "#38809e"))
 	_person.skin = Art.SKINS[look_seed % 4]
 	_person.hair = Art.HAIRS[(look_seed + 2) % 5]
 	_person.style = look_seed % 2

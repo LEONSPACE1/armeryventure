@@ -8,6 +8,10 @@ const OUT := "/tmp/claude-0/sim/captura_%d.png"
 func _ready() -> void:
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_window().size = Vector2i(720, 1558)
+	# Época a capturar: godot ... res://tests/captura.tscn -- --epoca=1
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--epoca="):
+			GameState._load_era(int(arg.split("=")[1]))
 	GameState._reset_values()
 	GameState.levels = [27, 12, 3, 0, 0]
 	GameState.coins = 4200.0

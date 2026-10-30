@@ -131,10 +131,10 @@ func _sync_smiths() -> void:
 	for i in n:
 		var x := _armero_x(i, n)
 		var p := PersonScript.new()
-		p.outfit = Color(0.55, 0.32, 0.18)
+		p.outfit = Color(GameState.theme("ropa_armeros", "#8c5230"))
 		p.skin = Art.SKINS[(idx + i) % 4]
 		p.hair = Art.HAIRS[(idx * 2 + i) % 5]
-		p.style = 2
+		p.style = int(GameState.theme("estilo_armeros", 2))
 		p.beard = (idx + i) % 2 == 0
 		p.with_hammer = true
 		p.position = Vector3(x, 0, -0.85)

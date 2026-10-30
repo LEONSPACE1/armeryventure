@@ -1,17 +1,17 @@
-# Mostrador de piedra y madera donde esperan los clientes.
+# Mostrador donde esperan los clientes (colores según la época).
 extends Node3D
 
 const LENGTH := 7.6
 
 
 func _ready() -> void:
-	Art3D.box(self, Vector3(LENGTH, 0.95, 0.85), Vector3(0, 0.47, 0), Color(0.45, 0.41, 0.38))
-	Art3D.box(self, Vector3(LENGTH + 0.15, 0.12, 1.0), Vector3(0, 1.0, 0), Color(0.6, 0.42, 0.26))
+	Art3D.box(self, Vector3(LENGTH, 0.95, 0.85), Vector3(0, 0.47, 0), Color(GameState.theme("mostrador_base", "#73695f")))
+	Art3D.box(self, Vector3(LENGTH + 0.15, 0.12, 1.0), Vector3(0, 1.0, 0), Color(GameState.theme("mostrador_tapa", "#996b42")))
 	# Piedras en la cara frontal
 	var x := -LENGTH / 2.0 + 0.4
 	var row := 0
 	while x < LENGTH / 2.0 - 0.3:
-		Art3D.box(self, Vector3(0.55, 0.25, 0.04), Vector3(x, 0.3 + (row % 2) * 0.32, 0.43), Color(0.55, 0.51, 0.47))
+		Art3D.box(self, Vector3(0.55, 0.25, 0.04), Vector3(x, 0.3 + (row % 2) * 0.32, 0.43), Color(GameState.theme("mostrador_base", "#73695f")).lightened(0.15))
 		x += 0.62
 		row += 1
 	# Cuenco de monedas y una piel sobre el mostrador

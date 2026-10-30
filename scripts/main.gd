@@ -63,6 +63,7 @@ var _mission_pill_label: Label
 var _mission_pill_bar: ProgressBar
 var _missions_badge: Control
 var _upgrades_badge: Control
+var _eras_badge: Control
 var _station_sheet: PanelContainer
 var _sheet_open := false
 var _open_sheet: Control
@@ -102,7 +103,10 @@ func _ready() -> void:
 	GameState.station_changed.connect(_on_station_changed)
 	_refresh_panel()
 	_refresh_missions()
-	if GameState.offline_reward > 0.0:
+	if GameState.welcome != "":
+		_show_popup(GameState.welcome)
+		GameState.welcome = ""
+	elif GameState.offline_reward > 0.0:
 		_show_popup("Mientras no estabas, tu armería ganó %s monedas." % Fmt.num(GameState.offline_reward))
 		GameState.claim_offline()
 
@@ -115,16 +119,16 @@ func _build_world() -> void:
 	var env := WorldEnvironment.new()
 	var e := Environment.new()
 	e.background_mode = Environment.BG_COLOR
-	e.background_color = Color(0.13, 0.09, 0.07)
+	e.background_color = Color(GameState.theme("fondo", "#211712"))
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.75, 0.68, 0.6)
-	e.ambient_light_energy = 0.35
+	e.ambient_light_energy = float(GameState.theme("luz_ambiente", 0.35))
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.environment = e
 	_world.add_child(env)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-58, -28, 0)
-	sun.light_energy = 0.5
+	sun.light_energy = float(GameState.theme("luz_sol", 0.5))
 	sun.light_color = Color(1, 0.95, 0.88)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 45.0
@@ -137,7 +141,7 @@ func _build_world() -> void:
 	_camera.far = 100.0
 	_world.add_child(_camera)
 	_camera.position = Vector3(0, 0, -1) + _camera.basis.z * 30.0
-	_build_cave()
+	_torch_lights = Scenery.build(_world, BACK_WALL_Z, SPOT_Z)
 	Art3D.bake(_world)
 	var counter := CounterScript.new()
 	counter.position = Vector3(0, 0, COUNTER_Z)
@@ -148,61 +152,6 @@ func _build_world() -> void:
 		s.position = STATION_POS[i]
 		_world.add_child(s)
 		stations.append(s)
-
-
-func _build_cave() -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 11
-	# Suelo de tierra con piedras, camino claro hacia la entrada y algo de pasto
-	Art3D.box(_world, Vector3(40, 0.2, 50), Vector3(0, -0.1, 6), Color(0.42, 0.31, 0.22))
-	Art3D.box(_world, Vector3(3.2, 0.02, 14), Vector3(0, 0.0, 10), Color(0.52, 0.42, 0.3))
-	Art3D.box(_world, Vector3(9, 0.02, 1.8), Vector3(0, 0.006, SPOT_Z + 0.1), Color(0.5, 0.36, 0.24))
-	for k in 70:
-		var p := Vector3(rng.randf_range(-6, 6), 0.02, rng.randf_range(-7, 16))
-		var st := Art3D.cyl(_world, 0.0, rng.randf_range(0.06, 0.18), 0.05, p, Color(0.4, 0.3, 0.21).lerp(Color(0.55, 0.5, 0.45), rng.randf()), 6)
-		st.scale.z = rng.randf_range(0.6, 1.0)
-	for k in 26:
-		var p := Vector3(rng.randf_range(-5, 5), 0, rng.randf_range(9, 18))
-		if absf(p.x) < 1.8:
-			continue
-		Art3D.cyl(_world, 0.0, 0.12, rng.randf_range(0.25, 0.45), p + Vector3(0, 0.15, 0), Color(0.4, 0.6, 0.28), 5)
-	# Pared del fondo y rocas
-	Art3D.box(_world, Vector3(14, 4.2, 1.2), Vector3(0, 2.1, BACK_WALL_Z - 0.6), Color(0.33, 0.27, 0.23))
-	# Pared alta del fondo: en pantallas altas se ve como roca sobre la cueva
-	Art3D.box(_world, Vector3(16, 40, 1.0), Vector3(0, 20.0, BACK_WALL_Z - 1.6), Color(0.24, 0.19, 0.16))
-	for k in 18:
-		var rp := Vector3(rng.randf_range(-5.5, 5.5), rng.randf_range(5.0, 12.0), BACK_WALL_Z - 1.1)
-		Art3D.sphere(_world, rng.randf_range(0.5, 1.1), rp, Color(0.3, 0.24, 0.2).darkened(rng.randf() * 0.25))
-	for k in 16:
-		var x := -7.0 + k * 0.95
-		Art3D.sphere(_world, rng.randf_range(0.45, 0.8), Vector3(x, rng.randf_range(0.0, 0.4), BACK_WALL_Z + 0.05), Color(0.38, 0.31, 0.26).darkened(rng.randf() * 0.2))
-		Art3D.sphere(_world, rng.randf_range(0.5, 0.9), Vector3(x, 4.1, BACK_WALL_Z - 0.2), Color(0.28, 0.23, 0.2))
-		var st := Art3D.cyl(_world, 0.12, 0.0, rng.randf_range(0.5, 1.0), Vector3(x + 0.4, 3.6, BACK_WALL_Z + 0.15), Color(0.3, 0.25, 0.21), 5)
-		st.rotation.x = 0.1
-	for side in [-1.0, 1.0]:
-		for k in 5:
-			Art3D.sphere(_world, rng.randf_range(0.5, 0.8), Vector3(side * rng.randf_range(4.9, 5.4), 0.2, BACK_WALL_Z + 0.8 + k * 1.3), Color(0.36, 0.3, 0.25))
-	# Pinturas rupestres en la pared
-	for px in [-3.4, 3.4]:
-		var ochre := Color(0.78, 0.42, 0.2)
-		var z := BACK_WALL_Z + 0.02
-		Art3D.box(_world, Vector3(0.7, 0.3, 0.02), Vector3(px, 2.6, z), ochre)
-		Art3D.box(_world, Vector3(0.22, 0.2, 0.02), Vector3(px + 0.42, 2.78, z), ochre)
-		for lx in [-0.25, -0.1, 0.12, 0.27]:
-			Art3D.box(_world, Vector3(0.05, 0.28, 0.02), Vector3(px + lx, 2.35, z), ochre)
-	# Antorchas con luz que titila
-	for tx in [-1.55, 1.55]:
-		var base := Vector3(tx, 2.0, BACK_WALL_Z + 0.25)
-		Art3D.cyl(_world, 0.06, 0.08, 0.7, base, Color(0.35, 0.22, 0.12), 6)
-		Art3D.sphere(_world, 0.17, base + Vector3(0, 0.48, 0), Color(1, 0.5, 0.12), 1.6)
-		Art3D.sphere(_world, 0.09, base + Vector3(0, 0.58, 0.05), Color(1, 0.85, 0.45), 2.0)
-		var light := OmniLight3D.new()
-		light.position = base + Vector3(0, 0.6, 0.6)
-		light.light_color = Color(1, 0.6, 0.25)
-		light.light_energy = 1.0
-		light.omni_range = 5.5
-		_world.add_child(light)
-		_torch_lights.append(light)
 
 
 # Punto del suelo que se ve en una posición de la pantalla.
@@ -265,7 +214,12 @@ func _draw() -> void:
 			Art.rrect(self, I, Rect2(bubble.position + Vector2(0, 3), bubble.size), 14, Color(0, 0, 0, 0.2))
 			Art.rrect(self, I, bubble, 14, Color(1, 0.98, 0.93))
 			Art.poly(self, I, PackedVector2Array([head + Vector2(-6, -5 + bob), head + Vector2(6, -5 + bob), head + Vector2(0, 4 + bob)]), Color(1, 0.98, 0.93))
-			Art.weapon(self, GameState.station(c.station_idx)["id"], Transform2D(0, Vector2(0.6, 0.6), 0, head + Vector2(-14, -26 + bob)))
+			var wid: String = GameState.station(c.station_idx)["id"]
+			var tex := WeaponIcons.texture(wid)
+			if tex:
+				draw_texture_rect(tex, Rect2(head + Vector2(-36, -48 + bob), Vector2(44, 44)), false)
+			else:
+				Art.weapon(self, wid, Transform2D(0, Vector2(0.6, 0.6), 0, head + Vector2(-14, -26 + bob)))
 			draw_string(_font, head + Vector2(6, -18 + bob), "x%d" % c.remaining, HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Color(0.3, 0.18, 0.08))
 		if c.heart > 0.0:
 			Art.heart(self, I, head + Vector2(20, -20 - (1.0 - c.heart) * 40.0), 9, Color(0.95, 0.3, 0.35, minf(1.0, c.heart * 2.0)))
@@ -737,7 +691,8 @@ func _build_ui() -> void:
 	bar.size = Vector2(720, BOTTOM_BAR_H)
 	bar.set_meta("bottom_bar", true)
 	_ui.add_child(bar)
-	_square_button("portal", "Épocas", Vector2(12, 0), 112, func(): _open_window(_eras_panel), bar)
+	var eras_btn := _square_button("portal", "Épocas", Vector2(12, 0), 112, func(): _open_window(_eras_panel), bar)
+	_eras_badge = _badge(eras_btn)
 	var missions_btn := _square_button("trofeo", "Misiones", Vector2(470, 0), 112, func(): _open_window(_missions_panel), bar)
 	_missions_badge = _badge(missions_btn)
 	_upgrades_button = _square_button("flecha", "Mejoras", Vector2(596, 0), 112, func(): _open_window(_upgrades_panel), bar)
@@ -1082,7 +1037,11 @@ func _on_buy() -> void:
 
 
 func _on_portal() -> void:
-	_show_popup("¡Completaste la Prehistoria! La %s llegará en la próxima versión del prototipo." % GameState.era["siguiente"])
+	if GameState.can_travel():
+		_close_windows()
+		GameState.travel()
+	elif GameState.stars() >= GameState.total_missions():
+		_show_popup("¡Completaste la %s! La %s llegará en una próxima versión." % [GameState.era["nombre"], GameState.era["siguiente"]])
 
 
 func _refresh_panel() -> void:
@@ -1181,6 +1140,7 @@ func _refresh_live(delta: float) -> void:
 		_mission_pill_bar.value = 1.0
 	_mission_pill.theme_type_variation = "ClaimButton" if ready > 0 else "PillButton"
 	_set_badge(_missions_badge, ready)
+	_set_badge(_eras_badge, 1 if GameState.can_travel() else 0)
 
 
 func _upgrade_icon(u: Dictionary) -> String:
@@ -1292,7 +1252,7 @@ func _refresh_eras() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	current.add_child(row)
-	_icon_view("lanza", 60, row)
+	_icon_view(GameState.station(0)["id"], 60, row)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(col)
@@ -1310,10 +1270,13 @@ func _refresh_eras() -> void:
 	ncol.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nrow.add_child(ncol)
 	_label(str(GameState.era["siguiente"]), 24, ncol, 5)
-	var hint := _label("Lista para viajar" if done else "Completa todas las misiones para viajar", 18, ncol, 4)
+	var hint_text := "Completa todas las misiones para viajar"
+	if done:
+		hint_text = "¡Lista para viajar!" if GameState.has_next_era() else "Llegará en una próxima versión"
+	var hint := _label(hint_text, 18, ncol, 4)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.custom_minimum_size.x = 380
 	var go := _button("Viajar", nrow, _on_portal, "ClaimButton")
 	go.custom_minimum_size = Vector2(130, 64)
 	go.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	go.disabled = not done
+	go.disabled = not GameState.can_travel()
