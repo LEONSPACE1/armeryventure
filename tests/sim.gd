@@ -6,6 +6,11 @@ var next_check := 0.0
 var log_times := {}
 
 func _ready():
+	# Época a simular: godot ... res://tests/sim.tscn -- --epoca=1
+	var e := 0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--epoca="): e = int(a.split("=")[1])
+	GameState._load_era(e)
 	GameState._reset_values()
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)

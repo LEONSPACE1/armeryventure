@@ -18,10 +18,11 @@ var _t := 0.0
 func _ready() -> void:
 	_t = randf() * 10.0
 	_person = PersonScript.new()
-	_person.outfit = Art.FURS.pick_random()
+	# Ropa y peinado/casco según la época (tema del archivo de datos)
+	_person.outfit = Color(GameState.theme("ropa_clientes", ["#8c5a33"]).pick_random())
 	_person.skin = Art.SKINS.pick_random()
 	_person.hair = Art.HAIRS.pick_random()
-	_person.style = randi() % 4
+	_person.style = int(GameState.theme("estilos_clientes", [0, 1, 3]).pick_random())
 	add_child(_person)
 
 

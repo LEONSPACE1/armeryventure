@@ -1,0 +1,329 @@
+{
+  "id": "bronce",
+  "nombre": "Edad del Bronce",
+  "siguiente": "Antigüedad clásica",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "daga",
+      "nombre": "Daga de bronce",
+      "costo_desbloqueo": 0,
+      "costo_base": 40,
+      "valor_base": 10,
+      "tiempo": 2.0,
+      "color": "#c98a3d"
+    },
+    {
+      "id": "hacha_bronce",
+      "nombre": "Hacha de bronce",
+      "costo_desbloqueo": 6000,
+      "costo_base": 300,
+      "valor_base": 80,
+      "tiempo": 3.0,
+      "color": "#b0723a"
+    },
+    {
+      "id": "escudo",
+      "nombre": "Escudo de cuero",
+      "costo_desbloqueo": 100000,
+      "costo_base": 2500,
+      "valor_base": 640,
+      "tiempo": 4.0,
+      "color": "#8a5a32"
+    },
+    {
+      "id": "jabalina",
+      "nombre": "Jabalina",
+      "costo_desbloqueo": 1500000,
+      "costo_base": 20000,
+      "valor_base": 5120,
+      "tiempo": 5.0,
+      "color": "#7d8f5a"
+    },
+    {
+      "id": "espada",
+      "nombre": "Espada de bronce",
+      "costo_desbloqueo": 15000000,
+      "costo_base": 160000,
+      "valor_base": 40960,
+      "tiempo": 6.0,
+      "color": "#d4a24a"
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 2400,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Mercado junto al río: clientes 25% más rápido",
+      "costo": 12000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2daga",
+      "nombre": "Molde de piedra: x2 Daga de bronce",
+      "costo": 36000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "daga"
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 90000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2hacha_bronce",
+      "nombre": "Más estaño en la aleación: x2 Hacha de bronce",
+      "costo": 300000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "hacha_bronce"
+    },
+    {
+      "id": "vel1",
+      "nombre": "Carro de ruedas: dependientes 30% más rápido",
+      "costo": 720000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Mostrador de adobe más largo: +2 clientes en la fila",
+      "costo": 1800000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2escudo",
+      "nombre": "Cuero curtido doble: x2 Escudo de cuero",
+      "costo": 4800000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "escudo"
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 12000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Sello del palacio: clientes 25% más rápido",
+      "costo": 30000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2jabalina",
+      "nombre": "Puntas de bronce fundido: x2 Jabalina",
+      "costo": 90000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "jabalina"
+    },
+    {
+      "id": "x2espada",
+      "nombre": "Hoja con nervio central: x2 Espada de bronce",
+      "costo": 720000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "espada"
+    },
+    {
+      "id": "vel2",
+      "nombre": "Sandalias de palacio: dependientes 30% más rápido",
+      "costo": 1500000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Favor del rey: x2 todas las ganancias",
+      "costo": 2400000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube la Daga de bronce al nivel 10",
+      "tipo": "nivel",
+      "estacion": "daga",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea el Hacha de bronce",
+      "tipo": "nivel",
+      "estacion": "hacha_bronce",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube el Hacha de bronce al nivel 10",
+      "tipo": "nivel",
+      "estacion": "hacha_bronce",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube la Daga de bronce al nivel 25",
+      "tipo": "nivel",
+      "estacion": "daga",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea el Escudo de cuero",
+      "tipo": "nivel",
+      "estacion": "escudo",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 200K monedas en total",
+      "tipo": "ganado",
+      "meta": 200000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube el Escudo de cuero al nivel 10",
+      "tipo": "nivel",
+      "estacion": "escudo",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea la Jabalina",
+      "tipo": "nivel",
+      "estacion": "jabalina",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube el Hacha de bronce al nivel 25",
+      "tipo": "nivel",
+      "estacion": "hacha_bronce",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube la Jabalina al nivel 10",
+      "tipo": "nivel",
+      "estacion": "jabalina",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea la Espada de bronce",
+      "tipo": "nivel",
+      "estacion": "espada",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube la Espada de bronce al nivel 10",
+      "tipo": "nivel",
+      "estacion": "espada",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    },
+    {
+      "id": "m16",
+      "texto": "Compra 10 mejoras",
+      "tipo": "mejoras",
+      "meta": 10
+    },
+    {
+      "id": "m17",
+      "texto": "Sube la Espada de bronce al nivel 50",
+      "tipo": "nivel",
+      "estacion": "espada",
+      "meta": 50
+    },
+    {
+      "id": "m18",
+      "texto": "Sube todas las estaciones al nivel 50",
+      "tipo": "todas_nivel",
+      "meta": 50
+    }
+  ],
+  "tema": {
+    "escenario": "taller_bronce",
+    "fondo": "#2b1f17",
+    "suelo": "#a08a6c",
+    "camino": "#b8a382",
+    "alfombra": "#8c3b2e",
+    "mostrador_base": "#b08a62",
+    "mostrador_tapa": "#7a5232",
+    "ropa_clientes": [
+      "#e8dcc0",
+      "#b8452f",
+      "#c99a3a",
+      "#4f6f85",
+      "#6f8a4a"
+    ],
+    "estilos_clientes": [
+      4,
+      5,
+      1
+    ],
+    "ropa_armeros": "#6e4a2e",
+    "estilo_armeros": 5,
+    "ropa_dependientes": "#3d7a5a",
+    "luz_sol": 0.38,
+    "luz_ambiente": 0.3
+  }
+}

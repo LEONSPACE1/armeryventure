@@ -87,7 +87,7 @@ func _ready() -> void:
 	cap.scale = Vector3(1.05, 0.75, 1.0)
 	var fringe := Art3D.sphere(head, 0.2, Vector3(0, 0.27, 0.17), hair)
 	fringe.scale = Vector3(1.5, 0.55, 0.9)
-	match style % 4:
+	match style:
 		1:
 			Art3D.sphere(head, 0.15, Vector3(0, -0.05, -0.38), hair)
 		2:
@@ -96,6 +96,21 @@ func _ready() -> void:
 			var f := Art3D.box(head, Vector3(0.05, 0.4, 0.02), Vector3(0.12, 0.38, -0.2), Color(0.95, 0.92, 0.85))
 			f.rotation.z = -0.4
 			Art3D.box(f, Vector3(0.06, 0.12, 0.025), Vector3(0, 0.16, 0), Color(0.9, 0.35, 0.25))
+		4:
+			# Casco cónico de bronce con cubrenuca
+			var metal := Color(0.88, 0.7, 0.34)
+			var helm := Art3D.sphere(head, 0.42, Vector3(0, 0.2, -0.1), metal)
+			helm.scale = Vector3(1.0, 0.8, 1.0)
+			Art3D.cyl(head, 0.0, 0.12, 0.22, Vector3(0, 0.6, -0.1), metal.lightened(0.2), 6)
+			Art3D.cyl(head, 0.43, 0.43, 0.06, Vector3(0, 0.18, -0.1), metal.darkened(0.35), 12)
+			for side in [-1.0, 1.0]:
+				Art3D.box(head, Vector3(0.06, 0.22, 0.16), Vector3(0.38 * side, 0.0, 0.0), metal.darkened(0.15))
+		5:
+			# Pañuelo de tela atado a la cabeza
+			var wrap := Art3D.sphere(head, 0.41, Vector3(0, 0.15, -0.08), Color(0.92, 0.88, 0.78))
+			wrap.scale = Vector3(1.04, 0.72, 1.0)
+			Art3D.cyl(head, 0.425, 0.425, 0.07, Vector3(0, 0.16, -0.04), Color(0.7, 0.25, 0.2), 10)
+			Art3D.sphere(head, 0.09, Vector3(0, 0.12, -0.45), Color(0.92, 0.88, 0.78))
 	if beard:
 		var b := Art3D.sphere(head, 0.25, Vector3(0, -0.22, 0.18), hair)
 		b.scale = Vector3(1.1, 0.8, 0.8)

@@ -12,6 +12,7 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 [autoload]
 
 GameState="*res://scripts/game_state.gd"
+WeaponIcons="*res://scripts/weapon_icons.gd"
 
 [display]
 

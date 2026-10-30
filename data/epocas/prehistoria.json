@@ -273,5 +273,28 @@
       "tipo": "todas_nivel",
       "meta": 25
     }
-  ]
+  ],
+  "tema": {
+    "escenario": "cueva",
+    "fondo": "#211712",
+    "suelo": "#6b4f38",
+    "camino": "#85694d",
+    "alfombra": "#805c3d",
+    "mostrador_base": "#73695f",
+    "mostrador_tapa": "#996b42",
+    "ropa_clientes": [
+      "#8c5a33",
+      "#a87447",
+      "#6e4a2e",
+      "#9a7a52"
+    ],
+    "estilos_clientes": [
+      0,
+      1,
+      3
+    ],
+    "ropa_armeros": "#8c5230",
+    "estilo_armeros": 2,
+    "ropa_dependientes": "#38809e"
+  }
 }
