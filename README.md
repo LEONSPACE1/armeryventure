@@ -12,7 +12,7 @@ Prototipo de la **Prehistoria** (época 1 de 8):
 - Clientes con pedidos, dependientes que llevan las armas al mostrador.
 - 13 mejoras, 15 misiones con estrellas y portal a la siguiente época.
 - Guardado automático cada 10 s y ganancias fuera de línea (50 % del ritmo, máximo 2 h).
-- Arte procedural (sin imágenes): cueva con antorchas, personajes animados (caminar, respirar, parpadear), armeros que martillan con chispas, monedas que vuelan al contador e interfaz con relieve. Todo el dibujo está en `scripts/art.gd`.
+- Estilo 3D low-poly isométrico hecho por código (sin modelos externos): cueva con antorchas que titilan, sombras, personajes articulados (caminar, respirar, parpadear, saltar de alegría), armeros que martillan con chispas y armas 3D sobre los bancos. Las piezas fijas se juntan en una sola malla (`Art3D.bake`) para que el celular dibuje poco. Los letreros, barras y burbujas son 2D encima de la escena.
 
 ## Cómo abrirlo en tu computador
 
@@ -28,6 +28,9 @@ Toda la economía está en `data/prehistoria.json`: costos, valores, tiempos, me
 | --- | --- |
 | `scripts/game_state.gd` | Monedas, niveles, fórmulas, misiones y guardado |
 | `scripts/main.gd` | Escena de la armería, clientes, dependientes e interfaz |
+| `scripts/art3d.gd` | Piezas 3D (cajas, cilindros, armas, chispas) y unión de mallas |
+| `scripts/person3d.gd` | Personaje 3D articulado y sus animaciones |
+| `scripts/art.gd` | Dibujo 2D de íconos, letreros e interfaz |
 | `scripts/station.gd` | Estación de fabricación y sus armeros |
 | `scripts/customer.gd`, `scripts/worker.gd` | Cliente y dependiente |
 | `tests/sim.tscn` | Simulación con jugador automático para revisar el ritmo |
@@ -49,3 +52,5 @@ godot --headless --export-release "Web" build/web/index.html
 ```
 
 La exportación usa la plantilla sin hilos (`thread_support=false`) para que funcione en GitHub Pages y en Safari de iPhone.
+
+Para revisar el arte sin celular: `xvfb-run godot --rendering-driver opengl3 res://tests/captura.tscn` guarda capturas en `/tmp/claude-0/sim/`.

@@ -8,19 +8,26 @@ const HAIRS := [Color(0.2, 0.13, 0.08), Color(0.42, 0.26, 0.12), Color(0.12, 0.1
 const FURS := [Color(0.62, 0.42, 0.24), Color(0.5, 0.36, 0.26), Color(0.72, 0.6, 0.42), Color(0.45, 0.5, 0.32), Color(0.6, 0.3, 0.22), Color(0.4, 0.42, 0.5)]
 const INK := Color(0.16, 0.1, 0.06)
 
+# Si tiene alfa > 0, reemplaza todos los colores (para contornos y brillos).
+static var override := Color(0, 0, 0, 0)
+
+
+static func _c(col: Color) -> Color:
+	return override if override.a > 0.0 else col
+
 
 # --- Primitivas ---------------------------------------------------------------
 
 static func line(ci: CanvasItem, xf: Transform2D, a: Vector2, b: Vector2, col: Color, w: float) -> void:
-	ci.draw_line(xf * a, xf * b, col, w * absf(xf.get_scale().y), true)
+	ci.draw_line(xf * a, xf * b, _c(col), w * absf(xf.get_scale().y), true)
 
 
 static func polyline(ci: CanvasItem, xf: Transform2D, pts: PackedVector2Array, col: Color, w: float) -> void:
-	ci.draw_polyline(xf * pts, col, w * absf(xf.get_scale().y), true)
+	ci.draw_polyline(xf * pts, _c(col), w * absf(xf.get_scale().y), true)
 
 
 static func poly(ci: CanvasItem, xf: Transform2D, pts: PackedVector2Array, col: Color) -> void:
-	ci.draw_colored_polygon(xf * pts, col)
+	ci.draw_colored_polygon(xf * pts, _c(col))
 
 
 static func ellipse_pts(c: Vector2, rx: float, ry: float, n := 20) -> PackedVector2Array:

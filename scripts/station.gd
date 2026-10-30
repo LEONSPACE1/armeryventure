@@ -1,35 +1,148 @@
-# Estación de fabricación: sus armeros fabrican armas solo cuando hay pedidos pendientes.
-extends Node2D
+# Estación de fabricación en 3D: banco de trabajo con sus armeros.
+# Los armeros fabrican solo cuando hay pedidos pendientes de esa arma.
+extends Node3D
 
-const SIZE := Vector2(196, 200)
-const BENCH_Y := 14.0   # desplazamiento del banco hacia abajo
-const SIGN_Y := -22.0   # desplazamiento del letrero hacia arriba
+const PersonScript := preload("res://scripts/person3d.gd")
 
 var idx := 0
 var stock := 0      # armas listas en la estación
 var reserved := 0   # armas listas que un dependiente ya viene a recoger
 var slots: Array = []  # progreso de cada armero (0..1), -1 = libre
 var selected := false
-var _flash := 0.0
-var _pop := 0.0
-var _ring := -1.0
 var _t := 0.0
-var _phases: Array = []   # fase del martillo de cada armero
-var _sparks: Array = []   # [pos, vel, vida]
-var _font: Font
+var _phases: Array = []
+var _smiths: Array = []
+var _crafting: Array = []   # arma que aparece sobre el banco por armero
+var _stock_models: Array = []
+var _sparks: Array = []
+var _big_sparks: CPUParticles3D
+var _bench: Node3D
+var _locked: Node3D
+var _lock_icon: Node3D
+var _ring: MeshInstance3D
+var _ring_mat: StandardMaterial3D
+var _built_unlocked := false
+var _pop := 0.0
 
 
 func _ready() -> void:
-	_font = ThemeDB.fallback_font
 	_t = randf() * 10.0
+	_ring_mat = StandardMaterial3D.new()
+	_ring_mat.albedo_color = Color(1, 0.8, 0.25, 0.5)
+	_ring_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var rm := CylinderMesh.new()
+	rm.top_radius = 1.7
+	rm.bottom_radius = 1.7
+	rm.height = 0.02
+	rm.radial_segments = 24
+	_ring = MeshInstance3D.new()
+	_ring.mesh = rm
+	_ring.material_override = _ring_mat
+	_ring.scale = Vector3(1, 1, 0.75)
+	_ring.position = Vector3(0, 0.02, -0.2)
+	add_child(_ring)
+	_big_sparks = Art3D.sparks(self, Vector3(0, 1.2, 0), 30)
+	_rebuild()
 
 
-func rect() -> Rect2:
-	return Rect2(position + Vector2(-SIZE.x / 2.0, -110), SIZE)
+func _rebuild() -> void:
+	for n in [_bench, _locked]:
+		if n:
+			n.queue_free()
+	_bench = null
+	_locked = null
+	_lock_icon = null
+	_smiths.clear()
+	_crafting.clear()
+	_sparks.clear()
+	_stock_models.clear()
+	_built_unlocked = GameState.is_unlocked(idx)
+	if _built_unlocked:
+		_build_bench()
+	else:
+		_build_locked()
 
 
-func pickup_point() -> Vector2:
-	return position + Vector2(0, 104)
+func _build_bench() -> void:
+	_bench = Node3D.new()
+	add_child(_bench)
+	var accent := Color(GameState.station(idx)["color"])
+	var wood := Color(0.52, 0.35, 0.2)
+	Art3D.box(_bench, Vector3(2.3, 0.85, 0.9), Vector3(0, 0.43, 0), wood.darkened(0.15))
+	Art3D.box(_bench, Vector3(2.45, 0.12, 1.05), Vector3(0, 0.91, 0), wood)
+	for x in [-0.6, 0.0, 0.6]:
+		Art3D.box(_bench, Vector3(0.03, 0.8, 0.02), Vector3(x, 0.43, 0.455), wood.darkened(0.35))
+	Art3D.box(_bench, Vector3(2.32, 0.12, 0.03), Vector3(0, 0.72, 0.46), accent)
+	Art3D.box(_bench, Vector3(0.45, 0.28, 0.4), Vector3(-0.85, 1.11, -0.1), Color(0.5, 0.5, 0.53))
+	for k in 4:
+		var w := Art3D.weapon(GameState.station(idx)["id"])
+		w.rotation = Vector3(PI / 2, 0, PI / 2 + 0.15 * k)
+		w.position = Vector3(0.75, 1.0 + k * 0.05, 0.3 - k * 0.1)
+		w.scale = Vector3.ONE * 0.45
+		w.visible = false
+		_bench.add_child(w)
+		_stock_models.append(w)
+	Art3D.bake(_bench)
+
+
+func _build_locked() -> void:
+	_locked = Node3D.new()
+	add_child(_locked)
+	var ghost := Color(0.35, 0.31, 0.28, 0.55)
+	Art3D.box(_locked, Vector3(2.3, 0.85, 0.9), Vector3(0, 0.43, 0), ghost)
+	Art3D.box(_locked, Vector3(2.45, 0.12, 1.05), Vector3(0, 0.91, 0), ghost)
+	_lock_icon = Node3D.new()
+	_lock_icon.position = Vector3(0, 1.55, 0.2)
+	_locked.add_child(_lock_icon)
+	Art3D.box(_lock_icon, Vector3(0.5, 0.4, 0.2), Vector3.ZERO, Color(0.9, 0.68, 0.2))
+	var shackle := Art3D.torus(_lock_icon, 0.11, 0.17, Vector3(0, 0.22, 0), Color(0.75, 0.75, 0.78))
+	shackle.rotation.x = PI / 2
+	Art3D.box(_lock_icon, Vector3(0.08, 0.14, 0.04), Vector3(0, -0.02, 0.1), Color(0.35, 0.22, 0.05))
+	Art3D.bake(_locked)
+	Art3D.bake(_lock_icon)
+
+
+func _armero_x(i: int, n: int) -> float:
+	return (i - (n - 1) / 2.0) * minf(0.7, 1.8 / maxf(n, 1)) - 0.1
+
+
+func _sync_smiths() -> void:
+	var n := GameState.armeros(idx)
+	while slots.size() < n:
+		slots.append(-1.0)
+		_phases.append(randf() * TAU)
+	if _smiths.size() == n:
+		return
+	for s in _smiths:
+		s.queue_free()
+	for c in _crafting:
+		c.queue_free()
+	for p in _sparks:
+		p.queue_free()
+	_smiths.clear()
+	_crafting.clear()
+	_sparks.clear()
+	for i in n:
+		var x := _armero_x(i, n)
+		var p := PersonScript.new()
+		p.outfit = Color(0.55, 0.32, 0.18)
+		p.skin = Art.SKINS[(idx + i) % 4]
+		p.hair = Art.HAIRS[(idx * 2 + i) % 5]
+		p.style = 2
+		p.beard = (idx + i) % 2 == 0
+		p.with_hammer = true
+		p.position = Vector3(x, 0, -0.85)
+		p.scale = Vector3.ONE * 0.95
+		_bench.add_child(p)
+		_smiths.append(p)
+		var w := Art3D.weapon(GameState.station(idx)["id"])
+		w.rotation = Vector3(PI / 2, 0, PI / 2)
+		w.position = Vector3(x + 0.15, 1.02, 0.05)
+		w.visible = false
+		_bench.add_child(w)
+		_crafting.append(w)
+		_sparks.append(Art3D.sparks(_bench, Vector3(x + 0.3, 1.05, -0.35), 8))
 
 
 func free_stock() -> int:
@@ -44,201 +157,59 @@ func crafting_count() -> int:
 	return n
 
 
+func pickup_point() -> Vector3:
+	return position + Vector3(0, 0, 0.95)
+
+
 func tick(delta: float, demand: int) -> void:
 	_t += delta
-	_flash = maxf(0.0, _flash - delta * 3.0)
 	_pop = maxf(0.0, _pop - delta * 3.5)
-	if _ring >= 0.0:
-		_ring += delta * 2.0
-		if _ring > 1.0:
-			_ring = -1.0
-	scale = Vector2.ONE * (1.0 + 0.12 * sin(_pop * PI))
-	_update_sparks(delta)
-	queue_redraw()
+	scale = Vector3.ONE * (1.0 + 0.1 * sin(_pop * PI))
+	_ring.visible = selected
+	if selected:
+		_ring_mat.albedo_color.a = 0.25 + 0.2 * sin(_t * 5.0)
+	if GameState.is_unlocked(idx) != _built_unlocked:
+		_rebuild()
 	if not GameState.is_unlocked(idx):
+		if _lock_icon:
+			_lock_icon.position.y = 1.55 + (sin(_t * 3.0) * 0.08 if GameState.can_unlock(idx) else 0.0)
+			_lock_icon.rotation.y = sin(_t * 1.5) * 0.3
 		return
-	while slots.size() < GameState.armeros(idx):
-		slots.append(-1.0)
-		_phases.append(randf() * TAU)
+	_sync_smiths()
 	var t := GameState.craft_time(idx)
 	for i in slots.size():
 		if slots[i] < 0.0 and free_stock() + crafting_count() < demand:
 			slots[i] = 0.0
-		if slots[i] >= 0.0:
+		var busy: bool = slots[i] >= 0.0
+		if busy:
 			var before := sin(_phases[i])
 			_phases[i] += delta * 9.0
 			if before > 0.0 and sin(_phases[i]) <= 0.0:
-				_spawn_sparks(_armero_x(i) + 22, 6, 5)
+				_sparks[i].restart()
 			slots[i] += delta / t
 			if slots[i] >= 1.0:
 				slots[i] = -1.0
 				stock += 1
-				_spawn_sparks(_armero_x(i) + 10, 4, 10)
+				busy = false
+		_smiths[i].hammer_phase = _phases[i] if busy else -1.0
+		_crafting[i].visible = busy
+		if busy:
+			_crafting[i].scale = Vector3.ONE * (0.25 + 0.3 * slots[i])
+	for k in _stock_models.size():
+		_stock_models[k].visible = k < stock
 
 
 # Toque del jugador: adelanta el trabajo de todos los armeros activos.
 func boost(amount: float) -> void:
-	_flash = 1.0
+	_pop = maxf(_pop, 0.5)
 	for i in slots.size():
 		if slots[i] >= 0.0:
 			slots[i] = minf(slots[i] + amount, 0.999)
-			_spawn_sparks(_armero_x(i) + 22, 6, 4)
+			if i < _sparks.size():
+				_sparks[i].restart()
 
 
-# Subida de nivel o desbloqueo: rebote y anillo dorado.
+# Subida de nivel o desbloqueo: rebote y chispas.
 func celebrate() -> void:
 	_pop = 1.0
-	_ring = 0.0
-	_spawn_sparks(0, -10, 18)
-
-
-func _armero_x(i: int) -> float:
-	var n := maxi(slots.size(), 1)
-	return (i - (n - 1) / 2.0) * minf(46.0, 150.0 / n) - 10.0
-
-
-func _spawn_sparks(x: float, y: float, n: int) -> void:
-	for k in n:
-		var v := Vector2(randf_range(-140, 140), randf_range(-260, -90))
-		_sparks.append([Vector2(x, y), v, randf_range(0.25, 0.5)])
-
-
-func _update_sparks(delta: float) -> void:
-	for s in _sparks:
-		s[1].y += 700.0 * delta
-		s[0] += s[1] * delta
-		s[2] -= delta
-	_sparks = _sparks.filter(func(s): return s[2] > 0.0)
-
-
-func _draw() -> void:
-	var I := Transform2D.IDENTITY
-	var data := GameState.station(idx)
-	var unlocked := GameState.is_unlocked(idx)
-	var accent := Color(data["color"])
-	var wood := Color(0.6, 0.4, 0.22)
-	var wood_top := Color(0.74, 0.53, 0.3)
-	var wood_front := Color(0.48, 0.3, 0.16)
-
-	# Contorno pulsante de la estación seleccionada
-	if selected:
-		var glow := 0.55 + 0.45 * sin(_t * 5.0)
-		Art.rrect(self, I, Rect2(-104, -112, 208, 206), 18, Color(1, 0.82, 0.3, 0.18 * glow))
-		Art.rrect_outline(self, I, Rect2(-104, -112, 208, 206), 18, Color(1, 0.82, 0.3, 0.6 + 0.4 * glow), 3)
-
-	# Sombra del banco
-	Art.ellipse(self, I, Vector2(0, 72 + BENCH_Y), 104, 12, Color(0, 0, 0, 0.3))
-
-	if not unlocked:
-		_draw_locked(data)
-		return
-
-	# Armeros detrás del banco
-	for i in slots.size():
-		var busy: bool = slots[i] >= 0.0
-		var x := _armero_x(i)
-		Art.person(self, Transform2D(0, Vector2(0.95, 0.95), 0, Vector2(x, 10 + BENCH_Y)), {
-			"t": _t, "facing": 1.0, "outfit": Color(0.55, 0.32, 0.18), "skin": Art.SKINS[(idx + i) % 4],
-			"hair": Art.HAIRS[(idx * 2 + i) % 5], "style": 2, "beard": (idx + i) % 2 == 0,
-			"hammer": _phases[i] if busy else -1.0, "seed": float(i) + idx, "mood": 0,
-		})
-
-	# Banco de trabajo con volumen: cara superior, cara frontal y patas
-	draw_set_transform(Vector2(0, BENCH_Y))
-	Art.rrect(self, I, Rect2(-92, 2, 184, 30), 6, wood_top)
-	for gx in [-60, -10, 40]:
-		Art.line(self, I, Vector2(gx, 9), Vector2(gx + 26, 9), wood_top.darkened(0.12), 2)
-	Art.rrect(self, I, Rect2(-92, 28, 184, 38), 4, wood_front)
-	for px in [-46, 0, 46]:
-		Art.line(self, I, Vector2(px, 30), Vector2(px, 64), wood_front.darkened(0.2), 2)
-	Art.line(self, I, Vector2(-92, 29), Vector2(92, 29), wood_top.lightened(0.15), 2)
-	draw_rect(Rect2(-88, 64, 10, 8), wood_front.darkened(0.35))
-	draw_rect(Rect2(78, 64, 10, 8), wood_front.darkened(0.35))
-
-	# Arma que se está fabricando sobre el banco (aparece según el progreso)
-	for i in slots.size():
-		if slots[i] >= 0.0:
-			var x := _armero_x(i) + 24
-			var k: float = slots[i]
-			Art.ellipse(self, I, Vector2(x, 20), 16, 4, Color(0, 0, 0, 0.18))
-			Art.weapon(self, data["id"], Transform2D(-0.6, Vector2(0.5, 0.5) * (0.6 + 0.4 * k), 0, Vector2(x, 14)))
-
-	# Barras de progreso en la cara frontal
-	var n := slots.size()
-	var bar_h := minf(8.0, 28.0 / maxf(n, 1))
-	for i in n:
-		var y := 33.0 + i * (bar_h + 2)
-		Art.rrect(self, I, Rect2(-84, y, 112, bar_h), bar_h / 2, Color(0, 0, 0, 0.35))
-		if slots[i] >= 0.0:
-			Art.rrect(self, I, Rect2(-84, y, maxf(bar_h, 112 * slots[i]), bar_h), bar_h / 2, Color(1, 0.8, 0.25))
-
-	# Armas listas: ícono + cantidad
-	if stock > 0:
-		Art.rrect(self, I, Rect2(36, 33, 52, 28), 8, Color(0, 0, 0, 0.3))
-		Art.weapon(self, data["id"], Transform2D(0, Vector2(0.42, 0.42), 0, Vector2(50, 47)))
-		draw_string_outline(_font, Vector2(62, 55), "x%d" % stock, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 4, Art.INK)
-		draw_string(_font, Vector2(62, 55), "x%d" % stock, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
-
-	draw_set_transform(Vector2(0, SIGN_Y))
-	_draw_sign(data["nombre"], accent)
-	# Insignia de nivel
-	Art.circle(self, I, Vector2(84, -66), 17, Color(0.4, 0.25, 0.08))
-	Art.circle(self, I, Vector2(84, -67), 15, Color(1, 0.8, 0.25))
-	var lv := str(GameState.levels[idx])
-	draw_string(_font, Vector2(64, -60), lv, HORIZONTAL_ALIGNMENT_CENTER, 40, 17 if lv.length() < 3 else 14, Color(0.35, 0.2, 0.05))
-
-	draw_set_transform(Vector2(0, BENCH_Y))
-	_draw_effects(I)
-	draw_set_transform(Vector2.ZERO)
-
-
-func _draw_sign(title: String, accent: Color) -> void:
-	var I := Transform2D.IDENTITY
-	Art.rrect(self, I, Rect2(-92, -80, 160, 30), 8, Color(0.3, 0.19, 0.1))
-	Art.rrect(self, I, Rect2(-92, -82, 160, 28), 8, accent.darkened(0.15))
-	Art.rrect(self, I, Rect2(-88, -80, 152, 10), 6, Color(1, 1, 1, 0.12))
-	draw_string_outline(_font, Vector2(-92, -61), title, HORIZONTAL_ALIGNMENT_CENTER, 160, 17, 5, Color(0.2, 0.12, 0.05))
-	draw_string(_font, Vector2(-92, -61), title, HORIZONTAL_ALIGNMENT_CENTER, 160, 17, Color(1, 0.97, 0.9))
-
-
-func _draw_locked(data: Dictionary) -> void:
-	var I := Transform2D.IDENTITY
-	var can := GameState.can_unlock(idx)
-	draw_set_transform(Vector2(0, BENCH_Y))
-	Art.rrect(self, I, Rect2(-92, 2, 184, 30), 6, Color(0.32, 0.27, 0.23, 0.9))
-	Art.rrect(self, I, Rect2(-92, 28, 184, 38), 4, Color(0.24, 0.2, 0.17, 0.9))
-	# Candado
-	var lock_y := -14.0 + (sin(_t * 3.0) * 2.0 if can else 0.0)
-	Art.rrect_outline(self, I, Rect2(-12, lock_y - 22, 24, 24), 10, Color(0.75, 0.75, 0.78), 5)
-	Art.rrect(self, I, Rect2(-18, lock_y - 8, 36, 28), 6, Color(0.85, 0.65, 0.2))
-	Art.circle(self, I, Vector2(0, lock_y + 4), 4, Color(0.35, 0.22, 0.05))
-	if can:
-		draw_set_transform(Vector2(0, SIGN_Y))
-		_draw_sign(data["nombre"], Color(0.45, 0.4, 0.35))
-		draw_set_transform(Vector2(0, BENCH_Y))
-		var cost := GameState.unlock_cost(idx)
-		var ok := GameState.coins >= cost
-		var pulse := 1.0 + (0.06 * sin(_t * 6.0) if ok else 0.0)
-		var tag := Rect2(-70 * pulse, 34, 140 * pulse, 28)
-		Art.rrect(self, I, tag, 12, Color(0.3, 0.65, 0.25) if ok else Color(0.4, 0.3, 0.25))
-		var txt := Fmt.num(cost)
-		draw_string_outline(_font, Vector2(-70, 55), txt, HORIZONTAL_ALIGNMENT_CENTER, 140, 20, 4, Art.INK)
-		draw_string(_font, Vector2(-70, 55), txt, HORIZONTAL_ALIGNMENT_CENTER, 140, 20, Color.WHITE)
-	else:
-		draw_set_transform(Vector2(0, SIGN_Y))
-		_draw_sign("???", Color(0.35, 0.32, 0.3))
-		draw_set_transform(Vector2(0, BENCH_Y))
-	_draw_effects(I)
-	draw_set_transform(Vector2.ZERO)
-
-
-func _draw_effects(I: Transform2D) -> void:
-	if _flash > 0.0:
-		Art.rrect(self, I, Rect2(-92, 2, 184, 64), 6, Color(1, 0.95, 0.7, _flash * 0.35))
-	if _ring >= 0.0:
-		var r := 30.0 + _ring * 120.0
-		Art.polyline(self, I, Art.ellipse_pts(Vector2(0, 10), r, r * 0.6, 32) + PackedVector2Array([Vector2(r, 10)]), Color(1, 0.85, 0.3, 1.0 - _ring), 5)
-	for s in _sparks:
-		var p: Vector2 = s[0]
-		var v: Vector2 = s[1]
-		draw_line(p, p - v * 0.03, Color(1, 0.85, 0.35, clampf(s[2] * 3.0, 0.0, 1.0)), 3)
+	_big_sparks.restart()
