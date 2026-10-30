@@ -11,16 +11,16 @@ const POLYMER := Color(0.18, 0.19, 0.21)
 const NEON := Color(0.3, 0.9, 1.0)
 const PLASMA := Color(0.75, 0.4, 1.0)
 static var _mats: Dictionary = {}
-static var _vc_mat: StandardMaterial3D
 
 
-static func mat(c: Color, emit := 0.0) -> StandardMaterial3D:
-	var key := "%s|%s" % [c.to_html(), emit]
+# metal (0..1) da brillo: el metal y el vidrio reflejan las luces con un destello.
+static func mat(c: Color, emit := 0.0, metal := 0.0) -> StandardMaterial3D:
+	var key := "%s|%s|%s" % [c.to_html(), emit, metal]
 	if _mats.has(key):
 		return _mats[key]
 	var m := StandardMaterial3D.new()
 	m.albedo_color = c
-	m.roughness = 0.85
+	_shine(m, metal)
 	if c.a < 1.0:
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	if emit > 0.0:
@@ -31,47 +31,53 @@ static func mat(c: Color, emit := 0.0) -> StandardMaterial3D:
 	return m
 
 
-static func _add(parent: Node3D, mesh: Mesh, pos: Vector3, c: Color, emit := 0.0) -> MeshInstance3D:
+static func _shine(m: StandardMaterial3D, metal: float) -> void:
+	m.roughness = lerpf(0.85, 0.28, metal)
+	m.metallic = 0.25 * metal
+	m.metallic_specular = lerpf(0.5, 1.0, metal)
+
+
+static func _add(parent: Node3D, mesh: Mesh, pos: Vector3, c: Color, emit := 0.0, metal := 0.0) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
-	mi.material_override = mat(c, emit)
+	mi.material_override = mat(c, emit, metal)
 	mi.position = pos
 	parent.add_child(mi)
 	return mi
 
 
-static func box(parent: Node3D, size: Vector3, pos: Vector3, c: Color, emit := 0.0) -> MeshInstance3D:
+static func box(parent: Node3D, size: Vector3, pos: Vector3, c: Color, emit := 0.0, metal := 0.0) -> MeshInstance3D:
 	var m := BoxMesh.new()
 	m.size = size
-	return _add(parent, m, pos, c, emit)
+	return _add(parent, m, pos, c, emit, metal)
 
 
-static func cyl(parent: Node3D, top: float, bottom: float, h: float, pos: Vector3, c: Color, seg := SEGMENTS) -> MeshInstance3D:
+static func cyl(parent: Node3D, top: float, bottom: float, h: float, pos: Vector3, c: Color, seg := SEGMENTS, metal := 0.0) -> MeshInstance3D:
 	var m := CylinderMesh.new()
 	m.top_radius = top
 	m.bottom_radius = bottom
 	m.height = h
 	m.radial_segments = seg
 	m.rings = 1
-	return _add(parent, m, pos, c)
+	return _add(parent, m, pos, c, 0.0, metal)
 
 
-static func sphere(parent: Node3D, r: float, pos: Vector3, c: Color, emit := 0.0) -> MeshInstance3D:
+static func sphere(parent: Node3D, r: float, pos: Vector3, c: Color, emit := 0.0, metal := 0.0) -> MeshInstance3D:
 	var m := SphereMesh.new()
 	m.radius = r
 	m.height = r * 2.0
 	m.radial_segments = 10
 	m.rings = 5
-	return _add(parent, m, pos, c, emit)
+	return _add(parent, m, pos, c, emit, metal)
 
 
-static func torus(parent: Node3D, inner: float, outer: float, pos: Vector3, c: Color) -> MeshInstance3D:
+static func torus(parent: Node3D, inner: float, outer: float, pos: Vector3, c: Color, metal := 0.0) -> MeshInstance3D:
 	var m := TorusMesh.new()
 	m.inner_radius = inner
 	m.outer_radius = outer
 	m.rings = 12
 	m.ring_segments = 6
-	return _add(parent, m, pos, c)
+	return _add(parent, m, pos, c, 0.0, metal)
 
 
 # Arma de cualquier época, a lo largo del eje Y (de -0.6 a 0.6 aprox.).
@@ -386,9 +392,28 @@ static func weapon(id: String, baked := true) -> Node3D:
 				box(w, Vector3(0.2, 0.03, 0.12), Vector3(0, -0.1 + k * 0.18, 0), Color(0.3, 0.32, 0.36))
 		_:
 			sphere(w, 0.2, Vector3.ZERO, stone)
+	# Las armas de metal brillan con la luz (las de piedra y madera no)
+	if id not in ["lanza", "hacha", "honda", "atlatl", "arco"]:
+		_metalize(w)
 	if baked:
 		bake(w, true)
 	return w
+
+
+static func _metalize(n: Node) -> void:
+	for c in n.get_children():
+		if c is MeshInstance3D:
+			var m := c.material_override as StandardMaterial3D
+			if m and _looks_metal(m.albedo_color):
+				c.material_override = mat(m.albedo_color, m.emission_energy_multiplier if m.emission_enabled else 0.0, 0.7)
+		_metalize(c)
+
+
+# Grises claros (hierro, acero, plástico) y dorados vivos (bronce, latón).
+static func _looks_metal(c: Color) -> bool:
+	if c.s < 0.15:
+		return c.v > 0.25
+	return c.h > 0.06 and c.h < 0.15 and c.s > 0.35 and c.v > 0.7
 
 
 # Junta las piezas fijas de un nodo en una sola malla con colores por vértice.
@@ -431,11 +456,12 @@ static func _collect(n: Node, xf: Transform3D, deep: bool, groups: Dictionary, v
 static func _append(mi: MeshInstance3D, xf: Transform3D, groups: Dictionary) -> void:
 	var m := mi.material_override as StandardMaterial3D
 	var plain := m != null and not m.emission_enabled and m.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
-	var key = "vc" if plain else m.get_instance_id()
+	# Las piezas opacas se juntan por brillo: una superficie mate y una brillante
+	var key = ("vc|%s" % m.roughness) if plain else m.get_instance_id()
 	if not groups.has(key):
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		groups[key] = {"st": st, "mat": _vertex_color_mat() if plain else m}
+		groups[key] = {"st": st, "mat": _vertex_color_mat(m) if plain else m}
 	var st: SurfaceTool = groups[key]["st"]
 	var arr := mi.mesh.surface_get_arrays(0)
 	var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
@@ -450,13 +476,17 @@ static func _append(mi: MeshInstance3D, xf: Transform3D, groups: Dictionary) -> 
 		st.add_vertex(xf * verts[i])
 
 
-static func _vertex_color_mat() -> StandardMaterial3D:
-	if _vc_mat == null:
-		_vc_mat = StandardMaterial3D.new()
-		_vc_mat.vertex_color_use_as_albedo = true
-		_vc_mat.vertex_color_is_srgb = true
-		_vc_mat.roughness = 0.85
-	return _vc_mat
+static func _vertex_color_mat(like: StandardMaterial3D) -> StandardMaterial3D:
+	var key := "vc|%s" % like.roughness
+	if not _mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.vertex_color_use_as_albedo = true
+		m.vertex_color_is_srgb = true
+		m.roughness = like.roughness
+		m.metallic = like.metallic
+		m.metallic_specular = like.metallic_specular
+		_mats[key] = m
+	return _mats[key]
 
 
 # Partículas de chispas (se disparan con restart()).

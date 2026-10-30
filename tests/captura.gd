@@ -14,6 +14,10 @@ func _ready() -> void:
 			GameState._load_era(int(arg.split("=")[1]))
 	GameState._reset_values()
 	GameState.levels = [27, 12, 3, 0, 0]
+	# Niveles a mano (p. ej. --niveles=100,75,50,25,1 para ver bancos llenos de armeros)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--niveles="):
+			GameState.levels = Array(arg.split("=")[1].split(",")).map(func(v): return int(v))
 	GameState.coins = 4200.0
 	GameState.purchased = {"dep2": true}
 	var main = load("res://scenes/main.tscn").instantiate()
