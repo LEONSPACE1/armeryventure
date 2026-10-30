@@ -6,11 +6,22 @@ Documento de diseño (GDD): https://claude.ai/artifact/MDbxywJLjPHAEiU13BeDgJ
 
 ## Estado
 
-Prototipo de la **Prehistoria** (época 1 de 8):
+Las **8 épocas** son jugables, de la Prehistoria a la era futurista:
 
-- 5 estaciones (Lanza de madera, Hacha de mano, Honda, Lanzadardos, Arco y flechas) con niveles, hitos x2 y armeros extra.
+| Época | Escenario | Armas |
+|---|---|---|
+| Prehistoria | Cueva con antorchas | Lanza de madera, hacha de mano, honda, lanzadardos, arco |
+| Edad del Bronce | Taller de adobe con horno | Daga, hacha de bronce, escudo, jabalina, espada |
+| Antigüedad clásica | Templo de mármol | Lanza de hoplita, escudo redondo, gladius, pilum, balista |
+| Edad Media | Salón de castillo | Arco largo, cota de malla, ballesta, espada larga, armadura |
+| Era de la pólvora | Almacén del puerto | Lanza de fuego, cañón de mano, arcabuz, mosquete, cañón |
+| Era industrial | Fábrica de ladrillo | Rifle de avancarga, revólver, bayoneta, rifle de cerrojo, ametralladora |
+| Era moderna | Tienda táctica | Casco, chaleco antibalas, rifle de asalto, visor nocturno, dron |
+| Era futurista | Hangar espacial | Pistola láser, escudo de energía, rifle de plasma, exotraje, cañón de riel |
+
+- En cada época: 5 estaciones con niveles, hitos x2 y armeros extra; clientes y armeros con la ropa y los cascos de la época.
 - Clientes con pedidos, dependientes que llevan las armas al mostrador.
-- 13 mejoras, 15 misiones con estrellas y portal a la siguiente época.
+- Mejoras y misiones con estrellas; al completarlas se viaja a la siguiente época. En la última se cierra la historia.
 - Interfaz como en Eatventure: arriba solo monedas y época; abajo una barra con Épocas, la misión actual, Misiones y Mejoras (con globos rojos cuando hay algo por hacer). Al tocar una estación se despliega su panel desde abajo; se cierra con la X o tocando el suelo.
 - Los armeros fabrican por etapas: ensamblan las piezas, forjan a martillazos sobre las brasas y levantan el arma terminada.
 - Los personajes guardan distancia entre sí y cruzan la segunda fila de bancos por los pasillos.
@@ -25,7 +36,9 @@ Prototipo de la **Prehistoria** (época 1 de 8):
 
 ## Dónde se ajusta el juego
 
-Cada época es un archivo en `data/epocas/` (por ahora `prehistoria.json` y `bronce.json`) con su economía, estaciones, mejoras, misiones y tema visual (escenario, colores, ropa y cascos de los personajes). El orden de las épocas está en `data/epocas/indice.json`. Se puede ajustar o agregar una época sin tocar el código, salvo los modelos 3D de armas nuevas (`scripts/art3d.gd`) y su escenario (`scripts/scenery.gd`).
+Cada época es un archivo en `data/epocas/` (uno por época) con su economía, estaciones, mejoras, misiones y tema visual (escenario, colores, ropa y cascos de los personajes). El orden de las épocas está en `data/epocas/indice.json`. Se puede ajustar o agregar una época sin tocar el código, salvo los modelos 3D de armas nuevas (`scripts/art3d.gd`) y su escenario (`scripts/scenery.gd`).
+
+Las épocas 3 a 8 se generan desde la del Bronce con `python3 tools/generar_epocas.py` (misma curva de ritmo, valores x10 por época); para cambiarlas, edita ese script y vuelve a correrlo.
 
 Al completar todas las misiones, el panel **Épocas** permite viajar a la siguiente: se reinician monedas, niveles, mejoras y misiones.
 
@@ -34,7 +47,7 @@ Al completar todas las misiones, el panel **Épocas** permite viajar a la siguie
 | `scripts/game_state.gd` | Monedas, niveles, fórmulas, misiones y guardado |
 | `scripts/main.gd` | Escena de la armería, clientes, dependientes e interfaz |
 | `scripts/art3d.gd` | Piezas 3D (cajas, cilindros, armas, chispas) y unión de mallas |
-| `scripts/scenery.gd` | Escenario de cada época (cueva, taller de bronce…) |
+| `scripts/scenery.gd` | Escenario de cada época (cueva, taller, templo, castillo, puerto, fábrica, tienda, hangar) |
 | `scripts/weapon_icons.gd` | Íconos de armas sacados de sus modelos 3D |
 | `scripts/person3d.gd` | Personaje 3D articulado y sus animaciones |
 | `scripts/art.gd` | Dibujo 2D de íconos, letreros e interfaz |
@@ -60,6 +73,6 @@ godot --headless --export-release "Web" build/web/index.html
 
 La exportación usa la plantilla sin hilos (`thread_support=false`) para que funcione en GitHub Pages y en Safari de iPhone.
 
-Para revisar el arte sin celular: `xvfb-run godot --rendering-driver opengl3 res://tests/captura.tscn` guarda capturas en `/tmp/claude-0/sim/`.
+Para revisar el arte sin celular: `xvfb-run godot --rendering-driver opengl3 res://tests/captura.tscn -- --epoca=N` (N de 0 a 7) guarda capturas en `/tmp/claude-0/sim/`.
 
-Otras pruebas: `res://tests/sim.tscn -- --epoca=1` simula la Edad del Bronce, `res://tests/viaje.tscn` comprueba el viaje entre épocas y `res://tests/primer_plano.tscn` captura de cerca la fabricación.
+Otras pruebas: `res://tests/sim.tscn -- --epoca=1` simula la Edad del Bronce, `res://tests/viaje.tscn` recorre el viaje por las 8 épocas, `res://tests/armas.tscn` junta los íconos de todas las armas en una imagen y `res://tests/primer_plano.tscn` captura de cerca la fabricación.

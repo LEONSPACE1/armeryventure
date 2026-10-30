@@ -1051,7 +1051,7 @@ func _on_portal() -> void:
 		_close_windows()
 		GameState.travel()
 	elif GameState.stars() >= GameState.total_missions():
-		_show_popup("¡Completaste la %s! La %s llegará en una próxima versión." % [GameState.era["nombre"], GameState.era["siguiente"]])
+		_show_popup("¡Completaste la historia de las armas, desde la Prehistoria hasta el futuro! Pronto llegarán eventos y armerías especiales.")
 
 
 func _refresh_panel() -> void:
@@ -1146,7 +1146,10 @@ func _refresh_live(delta: float) -> void:
 			pill_done = done
 	if not pill_set:
 		var all_done := GameState.stars() >= GameState.total_missions()
-		_mission_pill_label.text = "¡Época completada! Viaja en Épocas" if all_done else "Sin misiones"
+		if all_done:
+			_mission_pill_label.text = "¡Época completada! Viaja en Épocas" if GameState.has_next_era() else "¡Completaste la historia!"
+		else:
+			_mission_pill_label.text = "Sin misiones"
 		_mission_pill_bar.value = 1.0
 	_mission_pill.theme_type_variation = "ClaimButton" if ready > 0 else "PillButton"
 	_set_badge(_missions_badge, ready)
@@ -1204,10 +1207,14 @@ func _refresh_missions() -> void:
 	for c in _missions_box.get_children():
 		_missions_box.remove_child(c)
 		c.queue_free()
-	_stars_label.text = "Estrellas: %d/%d  ·  completa todas para viajar a la siguiente época" % [GameState.stars(), GameState.total_missions()]
+	var goal := "viajar a la siguiente época" if GameState.has_next_era() else "terminar la historia"
+	_stars_label.text = "Estrellas: %d/%d  ·  completa todas para %s" % [GameState.stars(), GameState.total_missions(), goal]
 	var active := GameState.active_missions()
 	if active.is_empty():
-		var l := _label("¡Todas las misiones completadas! Viaja a la siguiente época desde Épocas.", 20, _missions_box, 4)
+		var end_text := "¡Todas las misiones completadas! Viaja a la siguiente época desde Épocas."
+		if not GameState.has_next_era():
+			end_text = "¡Todas las misiones completadas! Recorriste toda la historia de las armas."
+		var l := _label(end_text, 20, _missions_box, 4)
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		l.custom_minimum_size.x = 680
 		return
@@ -1279,10 +1286,11 @@ func _refresh_eras() -> void:
 	var ncol := VBoxContainer.new()
 	ncol.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nrow.add_child(ncol)
-	_label(str(GameState.era["siguiente"]), 24, ncol, 5)
-	var hint_text := "Completa todas las misiones para viajar"
+	var final := not GameState.has_next_era()
+	_label("Fin de la historia" if final else str(GameState.era["siguiente"]), 24, ncol, 5)
+	var hint_text := "Completa todas las misiones para " + ("terminar la historia" if final else "viajar")
 	if done:
-		hint_text = "¡Lista para viajar!" if GameState.has_next_era() else "Llegará en una próxima versión"
+		hint_text = "¡Completaste la historia de las armas! Pronto: eventos y armerías especiales." if final else "¡Lista para viajar!"
 	var hint := _label(hint_text, 18, ncol, 4)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.custom_minimum_size.x = 380
@@ -1290,3 +1298,4 @@ func _refresh_eras() -> void:
 	go.custom_minimum_size = Vector2(130, 64)
 	go.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	go.disabled = not GameState.can_travel()
+	go.visible = not final

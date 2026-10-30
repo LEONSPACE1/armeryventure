@@ -1,0 +1,329 @@
+{
+  "id": "moderna",
+  "nombre": "Era moderna",
+  "siguiente": "Era futurista",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "casco",
+      "nombre": "Casco",
+      "color": "#5a6b4a",
+      "tiempo": 2.0,
+      "costo_desbloqueo": 0,
+      "costo_base": 4000000,
+      "valor_base": 1000000
+    },
+    {
+      "id": "chaleco",
+      "nombre": "Chaleco antibalas",
+      "color": "#3f4a3a",
+      "tiempo": 3.0,
+      "costo_desbloqueo": 600000000,
+      "costo_base": 30000000,
+      "valor_base": 8000000
+    },
+    {
+      "id": "rifle_asalto",
+      "nombre": "Rifle de asalto",
+      "color": "#2f3236",
+      "tiempo": 4.0,
+      "costo_desbloqueo": 10000000000,
+      "costo_base": 250000000,
+      "valor_base": 64000000
+    },
+    {
+      "id": "visor",
+      "nombre": "Visor nocturno",
+      "color": "#2a5a3a",
+      "tiempo": 5.0,
+      "costo_desbloqueo": 150000000000,
+      "costo_base": 2000000000,
+      "valor_base": 512000000
+    },
+    {
+      "id": "dron",
+      "nombre": "Dron",
+      "color": "#4a5560",
+      "tiempo": 6.0,
+      "costo_desbloqueo": 1500000000000,
+      "costo_base": 16000000000,
+      "valor_base": 4096000000
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 240000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Tienda en línea: clientes 25% más rápido",
+      "costo": 1200000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2casco",
+      "nombre": "Kevlar: x2 Casco",
+      "costo": 3600000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "casco"
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 9000000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2chaleco",
+      "nombre": "Placas de cerámica: x2 Chaleco antibalas",
+      "costo": 30000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "chaleco"
+    },
+    {
+      "id": "vel1",
+      "nombre": "Montacargas: dependientes 30% más rápido",
+      "costo": 72000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Mostrador doble: +2 clientes en la fila",
+      "costo": 180000000000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2rifle_asalto",
+      "nombre": "Mira holográfica: x2 Rifle de asalto",
+      "costo": 480000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "rifle_asalto"
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 1200000000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Contrato con la policía: clientes 25% más rápido",
+      "costo": 3000000000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2visor",
+      "nombre": "Tubo de fósforo verde: x2 Visor nocturno",
+      "costo": 9000000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "visor"
+    },
+    {
+      "id": "x2dron",
+      "nombre": "Batería de litio: x2 Dron",
+      "costo": 72000000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "dron"
+    },
+    {
+      "id": "vel2",
+      "nombre": "Patinetas eléctricas: dependientes 30% más rápido",
+      "costo": 150000000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Proveedor oficial: x2 todas las ganancias",
+      "costo": 240000000000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube el Casco al nivel 10",
+      "tipo": "nivel",
+      "estacion": "casco",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea el Chaleco antibalas",
+      "tipo": "nivel",
+      "estacion": "chaleco",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube el Chaleco antibalas al nivel 10",
+      "tipo": "nivel",
+      "estacion": "chaleco",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube el Casco al nivel 25",
+      "tipo": "nivel",
+      "estacion": "casco",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea el Rifle de asalto",
+      "tipo": "nivel",
+      "estacion": "rifle_asalto",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 20B monedas en total",
+      "tipo": "ganado",
+      "meta": 20000000000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube el Rifle de asalto al nivel 10",
+      "tipo": "nivel",
+      "estacion": "rifle_asalto",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea el Visor nocturno",
+      "tipo": "nivel",
+      "estacion": "visor",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube el Chaleco antibalas al nivel 25",
+      "tipo": "nivel",
+      "estacion": "chaleco",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube el Visor nocturno al nivel 10",
+      "tipo": "nivel",
+      "estacion": "visor",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea el Dron",
+      "tipo": "nivel",
+      "estacion": "dron",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube el Dron al nivel 10",
+      "tipo": "nivel",
+      "estacion": "dron",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    },
+    {
+      "id": "m16",
+      "texto": "Compra 10 mejoras",
+      "tipo": "mejoras",
+      "meta": 10
+    },
+    {
+      "id": "m17",
+      "texto": "Sube el Dron al nivel 50",
+      "tipo": "nivel",
+      "estacion": "dron",
+      "meta": 50
+    },
+    {
+      "id": "m18",
+      "texto": "Sube todas las estaciones al nivel 50",
+      "tipo": "todas_nivel",
+      "meta": 50
+    }
+  ],
+  "tema": {
+    "escenario": "tienda",
+    "fondo": "#14171a",
+    "suelo": "#767b80",
+    "camino": "#5a5f64",
+    "alfombra": "#2a5a8a",
+    "mostrador_base": "#5a6066",
+    "mostrador_tapa": "#a9b0b6",
+    "ropa_clientes": [
+      "#1f2f4f",
+      "#2f3236",
+      "#4a5a3a",
+      "#d0d0d0"
+    ],
+    "estilos_clientes": [
+      15,
+      16,
+      17
+    ],
+    "ropa_armeros": "#3f4f5f",
+    "banco": "#4f565e",
+    "estilo_armeros": 0,
+    "ropa_dependientes": "#d05a2a",
+    "luz_sol": 0.3,
+    "luz_ambiente": 0.25
+  }
+}
