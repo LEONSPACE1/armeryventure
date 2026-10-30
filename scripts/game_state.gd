@@ -59,9 +59,11 @@ func can_travel() -> bool:
 func travel(reload := true) -> bool:
 	if not can_travel():
 		return false
+	Meta.on_era_completed()
 	_load_era(era_index + 1)
 	_reset_values()
-	welcome = "¡Bienvenido a la %s! Tu armería empieza de nuevo con armas más valiosas." % era["nombre"]
+	var r: Dictionary = Meta.data["recompensas"]
+	welcome = "¡Bienvenido a la %s! Tu armería empieza de nuevo con armas más valiosas.\n\nPremio por la época: %d gemas, %d fichas y un %s." % [era["nombre"], int(r["gemas_por_epoca"]), int(r["fichas_por_epoca"]), Meta.data["cofres"][r["cofre_por_epoca"]]["nombre"].to_lower()]
 	save_game()
 	if reload:
 		get_tree().reload_current_scene()
@@ -199,7 +201,7 @@ func value_multiplier(i: int) -> float:
 func value(i: int) -> float:
 	var n: int = levels[i]
 	var k := _count_reached(econ["hitos_valor"], n)
-	return float(station(i)["valor_base"]) * n * pow(2.0, k) * value_multiplier(i)
+	return float(station(i)["valor_base"]) * n * pow(2.0, k) * value_multiplier(i) * Meta.bonus("ganancia")
 
 
 func is_armero_milestone(level: int) -> bool:
@@ -214,7 +216,7 @@ func armeros(i: int) -> int:
 
 
 func craft_time(i: int) -> float:
-	return float(station(i)["tiempo"])
+	return float(station(i)["tiempo"]) / Meta.bonus("velocidad")
 
 
 # --- Mejoras ------------------------------------------------------------------
@@ -244,11 +246,11 @@ func queue_size() -> int:
 
 
 func customer_interval() -> float:
-	return float(econ["intervalo_clientes"]) * _product_upgrades("clientes")
+	return float(econ["intervalo_clientes"]) * _product_upgrades("clientes") / Meta.bonus("clientes")
 
 
 func worker_speed() -> float:
-	return float(econ["velocidad_dependiente"]) * _product_upgrades("velocidad")
+	return float(econ["velocidad_dependiente"]) * _product_upgrades("velocidad") * Meta.bonus("dependientes")
 
 
 func available_upgrades() -> Array:
@@ -321,8 +323,9 @@ func active_missions(count := 3) -> Array:
 
 func claim_mission(id: String) -> void:
 	for m in era["misiones"]:
-		if m["id"] == id and mission_done(m):
+		if m["id"] == id and mission_done(m) and not claimed.has(id):
 			claimed[id] = true
+			Meta.on_mission_claimed()
 			missions_changed.emit()
 
 
@@ -388,6 +391,7 @@ func claim_offline() -> void:
 
 
 func reset_game() -> void:
+	Meta.reset_game()
 	_load_era(0)
 	_reset_values()
 	save_game()

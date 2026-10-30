@@ -22,6 +22,7 @@ Las **8 épocas** son jugables, de la Prehistoria a la era futurista:
 - En cada época: 5 estaciones con niveles, hitos x2 y armeros extra; clientes y armeros con la ropa y los cascos de la época.
 - Clientes con pedidos, dependientes que llevan las armas al mostrador.
 - Mejoras y misiones con estrellas; al completarlas se viaja a la siguiente época. En la última se cierra la historia.
+- **Gemas, fichas, cofres, maestros y equipo** (se conservan entre épocas): cada misión da gemas y cada 6 misiones un cofre de madera; completar una época da gemas, fichas y un cofre de oro. Los cofres (madera, plata, oro) dan cartas de 16 maestros armeros y 16 piezas de equipo de rareza común, rara, épica o legendaria. Hasta 3 maestros activos y una pieza por ranura (delantal, martillo, guantes, gafas) suben ganancias, velocidad de fabricación, velocidad de dependientes o llegada de clientes. Los maestros suben de nivel con copias y fichas; el equipo repetido sube de nivel solo.
 - Interfaz como en Eatventure: arriba solo monedas y época; abajo una barra con Épocas, la misión actual, Misiones y Mejoras (con globos rojos cuando hay algo por hacer). Al tocar una estación se despliega su panel desde abajo; se cierra con la X o tocando el suelo.
 - Los armeros fabrican por etapas: ensamblan las piezas, forjan a martillazos sobre las brasas y levantan el arma terminada.
 - Los personajes guardan distancia entre sí y cruzan la segunda fila de bancos por los pasillos.
@@ -38,6 +39,8 @@ Las **8 épocas** son jugables, de la Prehistoria a la era futurista:
 
 Cada época es un archivo en `data/epocas/` (uno por época) con su economía, estaciones, mejoras, misiones y tema visual (escenario, colores, ropa y cascos de los personajes). El orden de las épocas está en `data/epocas/indice.json`. Se puede ajustar o agregar una época sin tocar el código, salvo los modelos 3D de armas nuevas (`scripts/art3d.gd`) y su escenario (`scripts/scenery.gd`).
 
+Las gemas, cofres, maestros y equipo están en `data/meta.json` (precios, probabilidades, bonos por rareza, recompensas) y se guardan aparte en `user://meta.json`.
+
 Las épocas 3 a 8 se generan desde la del Bronce con `python3 tools/generar_epocas.py` (misma curva de ritmo, valores x10 por época); para cambiarlas, edita ese script y vuelve a correrlo.
 
 Al completar todas las misiones, el panel **Épocas** permite viajar a la siguiente: se reinician monedas, niveles, mejoras y misiones.
@@ -52,6 +55,8 @@ Al completar todas las misiones, el panel **Épocas** permite viajar a la siguie
 | `scripts/person3d.gd` | Personaje 3D articulado y sus animaciones |
 | `scripts/art.gd` | Dibujo 2D de íconos, letreros e interfaz |
 | `scripts/station.gd` | Estación de fabricación y sus armeros |
+| `scripts/meta.gd` | Gemas, fichas, cofres, maestros armeros y equipo (se conservan entre épocas) |
+| `scripts/meta_ui.gd` | Paneles de Cofres, Maestros y Equipo |
 | `scripts/customer.gd`, `scripts/worker.gd` | Cliente y dependiente |
 | `tests/sim.tscn` | Simulación con jugador automático para revisar el ritmo |
 
@@ -75,4 +80,4 @@ La exportación usa la plantilla sin hilos (`thread_support=false`) para que fun
 
 Para revisar el arte sin celular: `xvfb-run godot --rendering-driver opengl3 res://tests/captura.tscn -- --epoca=N` (N de 0 a 7) guarda capturas en `/tmp/claude-0/sim/`.
 
-Otras pruebas: `res://tests/sim.tscn -- --epoca=1` simula la Edad del Bronce, `res://tests/viaje.tscn` recorre el viaje por las 8 épocas, `res://tests/armas.tscn` junta los íconos de todas las armas en una imagen y `res://tests/primer_plano.tscn` captura de cerca la fabricación.
+Otras pruebas: `res://tests/sim.tscn -- --epoca=1` simula la Edad del Bronce, `res://tests/viaje.tscn` recorre el viaje por las 8 épocas, `res://tests/armas.tscn` junta los íconos de todas las armas en una imagen, `res://tests/meta.tscn` prueba gemas, cofres, maestros y equipo, y `res://tests/captura_meta.tscn` captura sus paneles y `res://tests/primer_plano.tscn` captura de cerca la fabricación.

@@ -3,7 +3,8 @@
 extends Control
 
 const SYMBOLS := ["estrella", "dependiente", "clientes", "velocidad", "fila", "todo",
-		"flecha", "portal", "trofeo", "engranaje", "cerrar"]
+		"flecha", "portal", "trofeo", "engranaje", "cerrar", "gema", "ficha", "cofre",
+		"cofre_madera", "cofre_plata", "cofre_oro", "maestro", "delantal", "martillo", "guantes", "gafas"]
 
 var kind := "":
 	set(v):

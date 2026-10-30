@@ -7,6 +7,7 @@ const CustomerScript := preload("res://scripts/customer.gd")
 const WorkerScript := preload("res://scripts/worker.gd")
 const CounterScript := preload("res://scripts/counter.gd")
 const IconScript := preload("res://scripts/icon_view.gd")
+const MetaUIScript := preload("res://scripts/meta_ui.gd")
 
 # Posiciones en el suelo (X a lo ancho, Z hacia la cámara)
 const STATION_POS := [
@@ -85,6 +86,7 @@ var _upgrades_panel: PanelContainer
 var _upgrades_list: VBoxContainer
 var _popup: PanelContainer
 var _popup_label: Label
+var _meta_ui
 
 
 func _ready() -> void:
@@ -751,6 +753,10 @@ func _build_ui() -> void:
 	_buy_button.add_theme_font_size_override("font_size", 27)
 	_buy_button.add_theme_constant_override("icon_max_width", 36)
 
+	# Gemas, cofres y maestros
+	_meta_ui = MetaUIScript.new(self)
+	_meta_ui.build_hud()
+
 	# Fondo oscuro para los paneles grandes
 	_dim = ColorRect.new()
 	_dim.color = Color(0, 0, 0, 0.55)
@@ -808,6 +814,8 @@ func _build_ui() -> void:
 		GameState.travel())
 	skip.modulate = Color(1, 1, 1, 0.8)
 	skip.visible = GameState.has_next_era()
+
+	_meta_ui.build_panels()
 
 	# Ventana emergente
 	_popup = _panel(Vector2(60, 460), Vector2(600, 300), _ui)
@@ -1154,6 +1162,7 @@ func _refresh_live(delta: float) -> void:
 	_mission_pill.theme_type_variation = "ClaimButton" if ready > 0 else "PillButton"
 	_set_badge(_missions_badge, ready)
 	_set_badge(_eras_badge, 1 if GameState.can_travel() else 0)
+	_meta_ui.animate()
 
 
 func _upgrade_icon(u: Dictionary) -> String:

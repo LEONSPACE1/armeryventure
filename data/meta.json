@@ -1,0 +1,81 @@
+{
+  "_nota": "Gemas, fichas, cofres, maestros armeros y equipo. Se conservan al cambiar de época. Todos los valores son parámetros iniciales para ajustar jugando.",
+  "recompensas": {
+    "gemas_por_mision": 5,
+    "cofre_madera_cada_misiones": 6,
+    "gemas_por_epoca": 50,
+    "fichas_por_epoca": 20,
+    "cofre_por_epoca": "oro",
+    "cofres_iniciales": {"madera": 1}
+  },
+  "rarezas": {
+    "comun":      {"nombre": "Común",      "color": "#b8b2a6", "maestro": 0.10, "equipo": 0.05},
+    "raro":       {"nombre": "Raro",       "color": "#4fa3e0", "maestro": 0.20, "equipo": 0.10},
+    "epico":      {"nombre": "Épico",      "color": "#b36ae2", "maestro": 0.35, "equipo": 0.18},
+    "legendario": {"nombre": "Legendario", "color": "#f0b429", "maestro": 0.60, "equipo": 0.30}
+  },
+  "bonos": {
+    "ganancia":     "ganancias",
+    "velocidad":    "velocidad de fabricación",
+    "dependientes": "velocidad de dependientes",
+    "clientes":     "llegada de clientes"
+  },
+  "cofres": {
+    "madera": {"nombre": "Cofre de madera", "precio": 40,  "cartas": 2, "gemas": [2, 6],
+               "probabilidad": {"comun": 0.80, "raro": 0.18, "epico": 0.02, "legendario": 0.0}},
+    "plata":  {"nombre": "Cofre de plata",  "precio": 120, "cartas": 4, "gemas": [5, 15],
+               "probabilidad": {"comun": 0.50, "raro": 0.38, "epico": 0.10, "legendario": 0.02}},
+    "oro":    {"nombre": "Cofre de oro",    "precio": 300, "cartas": 7, "gemas": [15, 40], "garantiza": "epico",
+               "probabilidad": {"comun": 0.25, "raro": 0.45, "epico": 0.24, "legendario": 0.06}}
+  },
+  "carta_maestro": 0.6,
+  "ranuras_maestros": 3,
+  "nivel_max": 5,
+  "copias_por_nivel": [0, 2, 4, 8, 16],
+  "fichas_por_nivel": [0, 10, 25, 60, 150],
+  "bono_por_nivel_maestro": 0.5,
+  "bono_por_nivel_equipo": 0.25,
+  "gemas_por_equipo_repetido": 5,
+  "maestros": [
+    {"id": "uga",     "nombre": "Uga la Talladora",         "epoca": "prehistoria", "rareza": "comun",      "bono": "velocidad",    "estilo": 1,  "ropa": "#8c5a33"},
+    {"id": "brak",    "nombre": "Brak el Rastreador",       "epoca": "prehistoria", "rareza": "comun",      "bono": "clientes",     "estilo": 3,  "ropa": "#a07850"},
+    {"id": "nabu",    "nombre": "Nabu el Fundidor",         "epoca": "bronce",      "rareza": "comun",      "bono": "ganancia",     "estilo": 5,  "ropa": "#6e4a2e"},
+    {"id": "tiye",    "nombre": "Tiye la Comerciante",      "epoca": "bronce",      "rareza": "raro",       "bono": "clientes",     "estilo": 4,  "ropa": "#c99a3a"},
+    {"id": "dion",    "nombre": "Dión el Hoplita",          "epoca": "antiguedad",  "rareza": "raro",       "bono": "velocidad",    "estilo": 6,  "ropa": "#b8342a"},
+    {"id": "livia",   "nombre": "Livia la Mercader",        "epoca": "antiguedad",  "rareza": "epico",      "bono": "ganancia",     "estilo": 7,  "ropa": "#e3dccb"},
+    {"id": "hugo",    "nombre": "Hugo el Forjador",         "epoca": "medieval",    "rareza": "comun",      "bono": "velocidad",    "estilo": 8,  "ropa": "#5c4030"},
+    {"id": "elvira",  "nombre": "Doña Elvira",              "epoca": "medieval",    "rareza": "raro",       "bono": "dependientes", "estilo": 9,  "ropa": "#3f5f3a"},
+    {"id": "rosa",    "nombre": "Capitana Rosa",            "epoca": "polvora",     "rareza": "raro",       "bono": "clientes",     "estilo": 10, "ropa": "#8a2a2a"},
+    {"id": "bartolo", "nombre": "Maese Bartolo",            "epoca": "polvora",     "rareza": "epico",      "bono": "velocidad",    "estilo": 11, "ropa": "#2a3f6e"},
+    {"id": "clara",   "nombre": "Clara la Ingeniera",       "epoca": "industrial",  "rareza": "comun",      "bono": "dependientes", "estilo": 13, "ropa": "#3f4a5c"},
+    {"id": "hollis",  "nombre": "Míster Hollis",            "epoca": "industrial",  "rareza": "epico",      "bono": "ganancia",     "estilo": 12, "ropa": "#3a3a3a"},
+    {"id": "rios",    "nombre": "Sargento Ríos",            "epoca": "moderna",     "rareza": "raro",       "bono": "velocidad",    "estilo": 15, "ropa": "#4a5a3a"},
+    {"id": "kim",     "nombre": "Doctora Kim",              "epoca": "moderna",     "rareza": "legendario", "bono": "ganancia",     "estilo": 17, "ropa": "#d0d0d0"},
+    {"id": "k7",      "nombre": "Unidad K-7",               "epoca": "futurista",   "rareza": "epico",      "bono": "dependientes", "estilo": 18, "ropa": "#e0e4ea"},
+    {"id": "nova",    "nombre": "Nova la Cazarrecompensas", "epoca": "futurista",   "rareza": "legendario", "bono": "velocidad",    "estilo": 19, "ropa": "#b05aff"}
+  ],
+  "ranuras_equipo": {
+    "delantal": {"nombre": "Delantal", "bono": "ganancia"},
+    "martillo": {"nombre": "Martillo", "bono": "velocidad"},
+    "guantes":  {"nombre": "Guantes",  "bono": "dependientes"},
+    "gafas":    {"nombre": "Gafas",    "bono": "clientes"}
+  },
+  "equipo": [
+    {"id": "delantal_cuero",    "nombre": "Delantal de cuero",     "ranura": "delantal", "rareza": "comun"},
+    {"id": "delantal_lona",     "nombre": "Delantal reforzado",    "ranura": "delantal", "rareza": "raro"},
+    {"id": "delantal_malla",    "nombre": "Delantal de malla",     "ranura": "delantal", "rareza": "epico"},
+    {"id": "delantal_grafeno",  "nombre": "Delantal de grafeno",   "ranura": "delantal", "rareza": "legendario"},
+    {"id": "martillo_piedra",   "nombre": "Martillo de piedra",    "ranura": "martillo", "rareza": "comun"},
+    {"id": "martillo_bronce",   "nombre": "Martillo de bronce",    "ranura": "martillo", "rareza": "raro"},
+    {"id": "martillo_acero",    "nombre": "Martillo de acero",     "ranura": "martillo", "rareza": "epico"},
+    {"id": "martillo_plasma",   "nombre": "Martillo de plasma",    "ranura": "martillo", "rareza": "legendario"},
+    {"id": "guantes_lana",      "nombre": "Guantes de lana",       "ranura": "guantes",  "rareza": "comun"},
+    {"id": "guantes_cuero",     "nombre": "Guantes de cuero",      "ranura": "guantes",  "rareza": "raro"},
+    {"id": "guantes_malla",     "nombre": "Guantes de malla",      "ranura": "guantes",  "rareza": "epico"},
+    {"id": "guantes_energia",   "nombre": "Guantes de energía",    "ranura": "guantes",  "rareza": "legendario"},
+    {"id": "gafas_vidrio",      "nombre": "Gafas de vidrio",       "ranura": "gafas",    "rareza": "comun"},
+    {"id": "gafas_laton",       "nombre": "Gafas de latón",        "ranura": "gafas",    "rareza": "raro"},
+    {"id": "gafas_soldador",    "nombre": "Gafas de soldador",     "ranura": "gafas",    "rareza": "epico"},
+    {"id": "gafas_holograficas","nombre": "Gafas holográficas",    "ranura": "gafas",    "rareza": "legendario"}
+  ]
+}
