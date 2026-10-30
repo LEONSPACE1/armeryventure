@@ -122,13 +122,14 @@ func _build_world() -> void:
 	e.background_color = Color(GameState.theme("fondo", "#211712"))
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.75, 0.68, 0.6)
-	e.ambient_light_energy = float(GameState.theme("luz_ambiente", 0.35))
+	e.ambient_light_energy = float(GameState.theme("luz_ambiente", 0.3))
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	e.tonemap_exposure = 0.9
 	env.environment = e
 	_world.add_child(env)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-58, -28, 0)
-	sun.light_energy = float(GameState.theme("luz_sol", 0.5))
+	sun.light_energy = float(GameState.theme("luz_sol", 0.42))
 	sun.light_color = Color(1, 0.95, 0.88)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 45.0
@@ -246,7 +247,8 @@ func _draw_sign(at: Vector2, title: String, accent: Color, level: int) -> void:
 func _process(delta: float) -> void:
 	_t += delta
 	for k in _torch_lights.size():
-		_torch_lights[k].light_energy = 0.7 + 0.15 * sin(_t * 9.0 + k * 2.0) + 0.1 * sin(_t * 23.0 + k)
+		var base: float = _torch_lights[k].get_meta("base", 0.5)
+		_torch_lights[k].light_energy = base * (1.0 + 0.18 * sin(_t * 9.0 + k * 2.0) + 0.1 * sin(_t * 23.0 + k))
 	queue_redraw()
 	_spawn_customers(delta)
 	var demand := []

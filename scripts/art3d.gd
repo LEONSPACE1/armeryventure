@@ -242,7 +242,7 @@ static func sparks(parent: Node3D, pos: Vector3, amount := 10) -> CPUParticles3D
 	p.scale_amount_max = 1.0
 	var m := BoxMesh.new()
 	m.size = Vector3(0.05, 0.05, 0.05)
-	m.material = mat(Color(1, 0.8, 0.3), 3.0)
+	m.material = mat(Color(1, 0.75, 0.3), 1.6)
 	p.mesh = m
 	parent.add_child(p)
 	return p

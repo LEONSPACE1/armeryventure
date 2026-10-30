@@ -78,7 +78,7 @@ func _build_bench() -> void:
 	_bench = Node3D.new()
 	add_child(_bench)
 	var accent := Color(GameState.station(idx)["color"])
-	var wood := Color(0.52, 0.35, 0.2)
+	var wood := Color(0.46, 0.31, 0.18)
 	Art3D.box(_bench, Vector3(2.3, 0.85, 0.9), Vector3(0, 0.43, 0), wood.darkened(0.15))
 	Art3D.box(_bench, Vector3(2.45, 0.12, 1.05), Vector3(0, 0.91, 0), wood)
 	for x in [-0.6, 0.0, 0.6]:
@@ -150,7 +150,7 @@ func _sync_smiths() -> void:
 			w.visible = false
 			_bench.add_child(w)
 			(_crafting if baked else _parts).append(w)
-		var ember := Art3D.sphere(_bench, 0.16, _rest_point(x) + Vector3(0, -0.05, 0), Color(0.95, 0.35, 0.05), 0.9)
+		var ember := Art3D.sphere(_bench, 0.16, _rest_point(x) + Vector3(0, -0.05, 0), Color(0.9, 0.32, 0.05), 0.7)
 		ember.scale = Vector3(1.8, 0.25, 1.1)
 		ember.visible = false
 		_embers.append(ember)
@@ -184,7 +184,7 @@ func tick(delta: float, demand: int) -> void:
 	scale = Vector3.ONE * (1.0 + 0.1 * sin(_pop * PI))
 	_ring.visible = selected
 	if selected:
-		_ring_mat.albedo_color.a = 0.25 + 0.2 * sin(_t * 5.0)
+		_ring_mat.albedo_color.a = 0.16 + 0.1 * sin(_t * 5.0)
 	if GameState.is_unlocked(idx) != _built_unlocked:
 		_rebuild()
 	if not GameState.is_unlocked(idx):

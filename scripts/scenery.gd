@@ -15,14 +15,15 @@ static func build(world: Node3D, back_z: float, spot_z: float) -> Array:
 
 
 # Llama con luz naranja (antorcha, brasero u horno).
-static func _flame(world: Node3D, at: Vector3, lights: Array, size := 1.0, energy := 1.0) -> void:
-	Art3D.sphere(world, 0.17 * size, at, Color(1, 0.5, 0.12), 1.6)
-	Art3D.sphere(world, 0.09 * size, at + Vector3(0, 0.1, 0.05) * size, Color(1, 0.85, 0.45), 2.0)
+static func _flame(world: Node3D, at: Vector3, lights: Array, size := 1.0, energy := 0.55) -> void:
+	Art3D.sphere(world, 0.17 * size, at, Color(0.95, 0.45, 0.12), 0.9)
+	Art3D.sphere(world, 0.09 * size, at + Vector3(0, 0.1, 0.05) * size, Color(1, 0.75, 0.4), 1.1)
 	var light := OmniLight3D.new()
 	light.position = at + Vector3(0, 0.12, 0.6)
 	light.light_color = Color(1, 0.6, 0.25)
 	light.light_energy = energy
-	light.omni_range = 5.5
+	light.set_meta("base", energy)
+	light.omni_range = 4.5
 	world.add_child(light)
 	lights.append(light)
 
@@ -82,7 +83,7 @@ static func _bronze_workshop(world: Node3D, back_z: float, spot_z: float, lights
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 23
 	var floor_col := Color(GameState.theme("suelo", "#a08a6c"))
-	var adobe := Color(0.76, 0.6, 0.42)
+	var adobe := Color(0.64, 0.49, 0.35)
 	var beam := Color(0.42, 0.28, 0.16)
 	# Suelo de losas de piedra, camino de tierra y alfombra frente al mostrador
 	Art3D.box(world, Vector3(40, 0.2, 50), Vector3(0, -0.1, 6), floor_col.darkened(0.25))
@@ -139,16 +140,16 @@ static func _bronze_workshop(world: Node3D, back_z: float, spot_z: float, lights
 			var leg := Art3D.cyl(world, 0.025, 0.025, 1.3, base + Vector3(cos(a * TAU / 3.0) * 0.15, 0.62, sin(a * TAU / 3.0) * 0.15), Art3D.BRONZE.darkened(0.3), 4)
 			leg.rotation = Vector3(sin(a * TAU / 3.0) * 0.2, 0, -cos(a * TAU / 3.0) * 0.2)
 		Art3D.cyl(world, 0.32, 0.18, 0.22, base + Vector3(0, 1.3, 0), Art3D.BRONZE, 10)
-		_flame(world, base + Vector3(0, 1.5, 0), lights, 1.1, 0.9)
+		_flame(world, base + Vector3(0, 1.5, 0), lights, 1.1, 0.45)
 	# Horno de fundición (izquierda) con boca encendida y crisol
 	var oven := Vector3(-4.2, 0, back_z + 1.7)
 	Art3D.cyl(world, 0.55, 0.85, 1.7, oven + Vector3(0, 0.85, 0), Color(0.6, 0.38, 0.25), 10)
 	Art3D.cyl(world, 0.2, 0.3, 0.6, oven + Vector3(0, 1.95, 0), Color(0.5, 0.32, 0.22), 8)
-	var mouth := Art3D.sphere(world, 0.3, oven + Vector3(0.0, 0.5, 0.72), Color(1, 0.45, 0.1), 2.2)
+	var mouth := Art3D.sphere(world, 0.3, oven + Vector3(0.0, 0.5, 0.72), Color(0.95, 0.4, 0.1), 1.2)
 	mouth.scale = Vector3(1.0, 0.8, 0.35)
-	_flame(world, oven + Vector3(0, 2.3, 0), lights, 0.8, 0.7)
+	_flame(world, oven + Vector3(0, 2.3, 0), lights, 0.8, 0.35)
 	Art3D.cyl(world, 0.2, 0.14, 0.25, oven + Vector3(0.95, 0.12, 0.5), Color(0.35, 0.3, 0.28), 8)
-	Art3D.sphere(world, 0.13, oven + Vector3(0.95, 0.25, 0.5), Color(1, 0.6, 0.15), 1.5)
+	Art3D.sphere(world, 0.13, oven + Vector3(0.95, 0.25, 0.5), Color(0.95, 0.55, 0.15), 0.9)
 	# Ánforas y lingotes (derecha)
 	var store := Vector3(4.5, 0, back_z + 1.4)
 	for k in 4:
