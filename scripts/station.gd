@@ -78,7 +78,7 @@ func _build_bench() -> void:
 	_bench = Node3D.new()
 	add_child(_bench)
 	var accent := Color(GameState.station(idx)["color"])
-	var wood := Color(0.46, 0.31, 0.18)
+	var wood := Color(GameState.theme("banco", "#754f2e"))
 	Art3D.box(_bench, Vector3(2.3, 0.85, 0.9), Vector3(0, 0.43, 0), wood.darkened(0.15))
 	Art3D.box(_bench, Vector3(2.45, 0.12, 1.05), Vector3(0, 0.91, 0), wood)
 	for x in [-0.6, 0.0, 0.6]:

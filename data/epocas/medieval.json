@@ -1,0 +1,328 @@
+{
+  "id": "medieval",
+  "nombre": "Edad Media",
+  "siguiente": "Era de la pólvora",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "arco_largo",
+      "nombre": "Arco largo",
+      "color": "#7a5230",
+      "tiempo": 2.0,
+      "costo_desbloqueo": 0,
+      "costo_base": 4000,
+      "valor_base": 1000
+    },
+    {
+      "id": "cota",
+      "nombre": "Cota de malla",
+      "color": "#8c9096",
+      "tiempo": 3.0,
+      "costo_desbloqueo": 600000,
+      "costo_base": 30000,
+      "valor_base": 8000
+    },
+    {
+      "id": "ballesta",
+      "nombre": "Ballesta",
+      "color": "#6b4a2e",
+      "tiempo": 4.0,
+      "costo_desbloqueo": 10000000,
+      "costo_base": 250000,
+      "valor_base": 64000
+    },
+    {
+      "id": "espada_larga",
+      "nombre": "Espada larga",
+      "color": "#a7b0ba",
+      "tiempo": 5.0,
+      "costo_desbloqueo": 150000000,
+      "costo_base": 2000000,
+      "valor_base": 512000
+    },
+    {
+      "id": "armadura",
+      "nombre": "Armadura de placas",
+      "color": "#c0c6cc",
+      "tiempo": 6.0,
+      "costo_desbloqueo": 1500000000,
+      "costo_base": 16000000,
+      "valor_base": 4096000
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 240000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Feria del pueblo: clientes 25% más rápido",
+      "costo": 1200000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2arco_largo",
+      "nombre": "Tejo inglés: x2 Arco largo",
+      "costo": 3600000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "arco_largo"
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 9000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2cota",
+      "nombre": "Anillas remachadas: x2 Cota de malla",
+      "costo": 30000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "cota"
+    },
+    {
+      "id": "vel1",
+      "nombre": "Caballos de carga: dependientes 30% más rápido",
+      "costo": 72000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Mostrador de roble: +2 clientes en la fila",
+      "costo": 180000000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2ballesta",
+      "nombre": "Cranequín de acero: x2 Ballesta",
+      "costo": 480000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "ballesta"
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 1200000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Torneo real: clientes 25% más rápido",
+      "costo": 3000000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2espada_larga",
+      "nombre": "Acero de Toledo: x2 Espada larga",
+      "costo": 9000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "espada_larga"
+    },
+    {
+      "id": "x2armadura",
+      "nombre": "Placas pulidas: x2 Armadura de placas",
+      "costo": 72000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "armadura"
+    },
+    {
+      "id": "vel2",
+      "nombre": "Botas de cuero: dependientes 30% más rápido",
+      "costo": 150000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Sello del rey: x2 todas las ganancias",
+      "costo": 240000000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube el Arco largo al nivel 10",
+      "tipo": "nivel",
+      "estacion": "arco_largo",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea la Cota de malla",
+      "tipo": "nivel",
+      "estacion": "cota",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube la Cota de malla al nivel 10",
+      "tipo": "nivel",
+      "estacion": "cota",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube el Arco largo al nivel 25",
+      "tipo": "nivel",
+      "estacion": "arco_largo",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea la Ballesta",
+      "tipo": "nivel",
+      "estacion": "ballesta",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 20M monedas en total",
+      "tipo": "ganado",
+      "meta": 20000000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube la Ballesta al nivel 10",
+      "tipo": "nivel",
+      "estacion": "ballesta",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea la Espada larga",
+      "tipo": "nivel",
+      "estacion": "espada_larga",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube la Cota de malla al nivel 25",
+      "tipo": "nivel",
+      "estacion": "cota",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube la Espada larga al nivel 10",
+      "tipo": "nivel",
+      "estacion": "espada_larga",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea la Armadura de placas",
+      "tipo": "nivel",
+      "estacion": "armadura",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube la Armadura de placas al nivel 10",
+      "tipo": "nivel",
+      "estacion": "armadura",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    },
+    {
+      "id": "m16",
+      "texto": "Compra 10 mejoras",
+      "tipo": "mejoras",
+      "meta": 10
+    },
+    {
+      "id": "m17",
+      "texto": "Sube la Armadura de placas al nivel 50",
+      "tipo": "nivel",
+      "estacion": "armadura",
+      "meta": 50
+    },
+    {
+      "id": "m18",
+      "texto": "Sube todas las estaciones al nivel 50",
+      "tipo": "todas_nivel",
+      "meta": 50
+    }
+  ],
+  "tema": {
+    "escenario": "castillo",
+    "fondo": "#141517",
+    "suelo": "#6e5338",
+    "camino": "#7d7a74",
+    "alfombra": "#2f4f8a",
+    "mostrador_base": "#7d7a74",
+    "mostrador_tapa": "#6b4a2e",
+    "ropa_clientes": [
+      "#8a2f2a",
+      "#3f5f3a",
+      "#4a4f8a",
+      "#b59a5a"
+    ],
+    "estilos_clientes": [
+      8,
+      9,
+      0
+    ],
+    "ropa_armeros": "#5c4030",
+    "estilo_armeros": 0,
+    "ropa_dependientes": "#6a3f6e",
+    "luz_sol": 0.36,
+    "luz_ambiente": 0.27
+  }
+}

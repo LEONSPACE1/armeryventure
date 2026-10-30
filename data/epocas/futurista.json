@@ -1,0 +1,329 @@
+{
+  "id": "futurista",
+  "nombre": "Era futurista",
+  "siguiente": "",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "pistola_laser",
+      "nombre": "Pistola láser",
+      "color": "#3fd0e0",
+      "tiempo": 2.0,
+      "costo_desbloqueo": 0,
+      "costo_base": 40000000,
+      "valor_base": 10000000
+    },
+    {
+      "id": "escudo_energia",
+      "nombre": "Escudo de energía",
+      "color": "#5a8aff",
+      "tiempo": 3.0,
+      "costo_desbloqueo": 6000000000,
+      "costo_base": 300000000,
+      "valor_base": 80000000
+    },
+    {
+      "id": "rifle_plasma",
+      "nombre": "Rifle de plasma",
+      "color": "#b05aff",
+      "tiempo": 4.0,
+      "costo_desbloqueo": 100000000000,
+      "costo_base": 2500000000,
+      "valor_base": 640000000
+    },
+    {
+      "id": "exotraje",
+      "nombre": "Exotraje",
+      "color": "#e0e4ea",
+      "tiempo": 5.0,
+      "costo_desbloqueo": 1500000000000,
+      "costo_base": 20000000000,
+      "valor_base": 5120000000
+    },
+    {
+      "id": "canon_riel",
+      "nombre": "Cañón de riel",
+      "color": "#ff8a3f",
+      "tiempo": 6.0,
+      "costo_desbloqueo": 15000000000000,
+      "costo_base": 160000000000,
+      "valor_base": 40960000000
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 2400000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Puerto espacial: clientes 25% más rápido",
+      "costo": 12000000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2pistola_laser",
+      "nombre": "Cristal enfocado: x2 Pistola láser",
+      "costo": 36000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "pistola_laser"
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 90000000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2escudo_energia",
+      "nombre": "Campo estable: x2 Escudo de energía",
+      "costo": 300000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "escudo_energia"
+    },
+    {
+      "id": "vel1",
+      "nombre": "Botas antigravedad: dependientes 30% más rápido",
+      "costo": 720000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Mostrador holográfico: +2 clientes en la fila",
+      "costo": 1800000000000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2rifle_plasma",
+      "nombre": "Bobina de fusión: x2 Rifle de plasma",
+      "costo": 4800000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "rifle_plasma"
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 12000000000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Anuncio en la red galáctica: clientes 25% más rápido",
+      "costo": 30000000000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2exotraje",
+      "nombre": "Servomotores: x2 Exotraje",
+      "costo": 90000000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "exotraje"
+    },
+    {
+      "id": "x2canon_riel",
+      "nombre": "Imanes superconductores: x2 Cañón de riel",
+      "costo": 720000000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "canon_riel"
+    },
+    {
+      "id": "vel2",
+      "nombre": "Teletransporte corto: dependientes 30% más rápido",
+      "costo": 1500000000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Fama intergaláctica: x2 todas las ganancias",
+      "costo": 2400000000000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube la Pistola láser al nivel 10",
+      "tipo": "nivel",
+      "estacion": "pistola_laser",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea el Escudo de energía",
+      "tipo": "nivel",
+      "estacion": "escudo_energia",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube el Escudo de energía al nivel 10",
+      "tipo": "nivel",
+      "estacion": "escudo_energia",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube la Pistola láser al nivel 25",
+      "tipo": "nivel",
+      "estacion": "pistola_laser",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea el Rifle de plasma",
+      "tipo": "nivel",
+      "estacion": "rifle_plasma",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 200B monedas en total",
+      "tipo": "ganado",
+      "meta": 200000000000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube el Rifle de plasma al nivel 10",
+      "tipo": "nivel",
+      "estacion": "rifle_plasma",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea el Exotraje",
+      "tipo": "nivel",
+      "estacion": "exotraje",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube el Escudo de energía al nivel 25",
+      "tipo": "nivel",
+      "estacion": "escudo_energia",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube el Exotraje al nivel 10",
+      "tipo": "nivel",
+      "estacion": "exotraje",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea el Cañón de riel",
+      "tipo": "nivel",
+      "estacion": "canon_riel",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube el Cañón de riel al nivel 10",
+      "tipo": "nivel",
+      "estacion": "canon_riel",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    },
+    {
+      "id": "m16",
+      "texto": "Compra 10 mejoras",
+      "tipo": "mejoras",
+      "meta": 10
+    },
+    {
+      "id": "m17",
+      "texto": "Sube el Cañón de riel al nivel 50",
+      "tipo": "nivel",
+      "estacion": "canon_riel",
+      "meta": 50
+    },
+    {
+      "id": "m18",
+      "texto": "Sube todas las estaciones al nivel 50",
+      "tipo": "todas_nivel",
+      "meta": 50
+    }
+  ],
+  "tema": {
+    "escenario": "hangar",
+    "fondo": "#06080f",
+    "suelo": "#2a3040",
+    "camino": "#3a4256",
+    "alfombra": "#1f6a8a",
+    "mostrador_base": "#3a4256",
+    "mostrador_tapa": "#9aa8c0",
+    "ropa_clientes": [
+      "#e0e4ea",
+      "#2a3040",
+      "#3fd0e0",
+      "#b05aff"
+    ],
+    "estilos_clientes": [
+      18,
+      19,
+      15
+    ],
+    "ropa_armeros": "#2a3a5a",
+    "banco": "#4a5468",
+    "estilo_armeros": 18,
+    "ropa_dependientes": "#3fd0e0",
+    "luz_sol": 0.3,
+    "luz_ambiente": 0.28
+  }
+}

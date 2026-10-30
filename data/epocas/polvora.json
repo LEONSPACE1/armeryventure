@@ -1,0 +1,328 @@
+{
+  "id": "polvora",
+  "nombre": "Era de la pólvora",
+  "siguiente": "Era industrial",
+  "economia": {
+    "crecimiento_costo": 1.15,
+    "hitos_valor": [
+      10,
+      25,
+      50,
+      75,
+      100
+    ],
+    "hitos_armero": [
+      25,
+      50,
+      75
+    ],
+    "nivel_max": 100,
+    "intervalo_clientes": 2.6,
+    "fila_base": 4,
+    "dependientes_base": 1,
+    "velocidad_dependiente": 3.2,
+    "velocidad_cliente": 3.0,
+    "impulso_toque": 0.2,
+    "factor_offline": 0.5,
+    "tope_offline_horas": 2
+  },
+  "estaciones": [
+    {
+      "id": "lanza_fuego",
+      "nombre": "Lanza de fuego",
+      "color": "#b5562a",
+      "tiempo": 2.0,
+      "costo_desbloqueo": 0,
+      "costo_base": 40000,
+      "valor_base": 10000
+    },
+    {
+      "id": "canon_mano",
+      "nombre": "Cañón de mano",
+      "color": "#8a6a3a",
+      "tiempo": 3.0,
+      "costo_desbloqueo": 6000000,
+      "costo_base": 300000,
+      "valor_base": 80000
+    },
+    {
+      "id": "arcabuz",
+      "nombre": "Arcabuz",
+      "color": "#7a4f2a",
+      "tiempo": 4.0,
+      "costo_desbloqueo": 100000000,
+      "costo_base": 2500000,
+      "valor_base": 640000
+    },
+    {
+      "id": "mosquete",
+      "nombre": "Mosquete",
+      "color": "#6b4a30",
+      "tiempo": 5.0,
+      "costo_desbloqueo": 1500000000,
+      "costo_base": 20000000,
+      "valor_base": 5120000
+    },
+    {
+      "id": "canon",
+      "nombre": "Cañón",
+      "color": "#3f3f45",
+      "tiempo": 6.0,
+      "costo_desbloqueo": 15000000000,
+      "costo_base": 160000000,
+      "valor_base": 40960000
+    }
+  ],
+  "mejoras": [
+    {
+      "id": "dep2",
+      "nombre": "Contrata un dependiente",
+      "costo": 2400000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli1",
+      "nombre": "Barcos en el puerto: clientes 25% más rápido",
+      "costo": 12000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2lanza_fuego",
+      "nombre": "Tubo de bambú: x2 Lanza de fuego",
+      "costo": 36000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "lanza_fuego"
+    },
+    {
+      "id": "dep3",
+      "nombre": "Contrata un dependiente",
+      "costo": 90000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "x2canon_mano",
+      "nombre": "Bronce fundido: x2 Cañón de mano",
+      "costo": 300000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "canon_mano"
+    },
+    {
+      "id": "vel1",
+      "nombre": "Carretillas de muelle: dependientes 30% más rápido",
+      "costo": 720000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "fila1",
+      "nombre": "Muelle más largo: +2 clientes en la fila",
+      "costo": 1800000000,
+      "tipo": "fila",
+      "valor": 2
+    },
+    {
+      "id": "x2arcabuz",
+      "nombre": "Llave de mecha: x2 Arcabuz",
+      "costo": 4800000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "arcabuz"
+    },
+    {
+      "id": "dep4",
+      "nombre": "Contrata un dependiente",
+      "costo": 12000000000,
+      "tipo": "dependiente",
+      "valor": 1
+    },
+    {
+      "id": "cli2",
+      "nombre": "Patente de corso: clientes 25% más rápido",
+      "costo": 30000000000,
+      "tipo": "clientes",
+      "valor": 0.75
+    },
+    {
+      "id": "x2mosquete",
+      "nombre": "Llave de chispa: x2 Mosquete",
+      "costo": 90000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "mosquete"
+    },
+    {
+      "id": "x2canon",
+      "nombre": "Ánima pulida: x2 Cañón",
+      "costo": 720000000000,
+      "tipo": "ganancia",
+      "valor": 2,
+      "estacion": "canon"
+    },
+    {
+      "id": "vel2",
+      "nombre": "Botas de marinero: dependientes 30% más rápido",
+      "costo": 1500000000000,
+      "tipo": "velocidad",
+      "valor": 1.3
+    },
+    {
+      "id": "x2todo",
+      "nombre": "Proveedor de la Armada: x2 todas las ganancias",
+      "costo": 2400000000000,
+      "tipo": "ganancia_todas",
+      "valor": 2
+    }
+  ],
+  "misiones": [
+    {
+      "id": "m01",
+      "texto": "Sube la Lanza de fuego al nivel 10",
+      "tipo": "nivel",
+      "estacion": "lanza_fuego",
+      "meta": 10
+    },
+    {
+      "id": "m02",
+      "texto": "Compra 1 mejora",
+      "tipo": "mejoras",
+      "meta": 1
+    },
+    {
+      "id": "m03",
+      "texto": "Desbloquea el Cañón de mano",
+      "tipo": "nivel",
+      "estacion": "canon_mano",
+      "meta": 1
+    },
+    {
+      "id": "m04",
+      "texto": "Sube el Cañón de mano al nivel 10",
+      "tipo": "nivel",
+      "estacion": "canon_mano",
+      "meta": 10
+    },
+    {
+      "id": "m05",
+      "texto": "Sube la Lanza de fuego al nivel 25",
+      "tipo": "nivel",
+      "estacion": "lanza_fuego",
+      "meta": 25
+    },
+    {
+      "id": "m06",
+      "texto": "Desbloquea el Arcabuz",
+      "tipo": "nivel",
+      "estacion": "arcabuz",
+      "meta": 1
+    },
+    {
+      "id": "m07",
+      "texto": "Gana 200M monedas en total",
+      "tipo": "ganado",
+      "meta": 200000000
+    },
+    {
+      "id": "m08",
+      "texto": "Sube el Arcabuz al nivel 10",
+      "tipo": "nivel",
+      "estacion": "arcabuz",
+      "meta": 10
+    },
+    {
+      "id": "m09",
+      "texto": "Compra 5 mejoras",
+      "tipo": "mejoras",
+      "meta": 5
+    },
+    {
+      "id": "m10",
+      "texto": "Desbloquea el Mosquete",
+      "tipo": "nivel",
+      "estacion": "mosquete",
+      "meta": 1
+    },
+    {
+      "id": "m11",
+      "texto": "Sube el Cañón de mano al nivel 25",
+      "tipo": "nivel",
+      "estacion": "canon_mano",
+      "meta": 25
+    },
+    {
+      "id": "m12",
+      "texto": "Sube el Mosquete al nivel 10",
+      "tipo": "nivel",
+      "estacion": "mosquete",
+      "meta": 10
+    },
+    {
+      "id": "m13",
+      "texto": "Desbloquea el Cañón",
+      "tipo": "nivel",
+      "estacion": "canon",
+      "meta": 1
+    },
+    {
+      "id": "m14",
+      "texto": "Sube el Cañón al nivel 10",
+      "tipo": "nivel",
+      "estacion": "canon",
+      "meta": 10
+    },
+    {
+      "id": "m15",
+      "texto": "Sube todas las estaciones al nivel 25",
+      "tipo": "todas_nivel",
+      "meta": 25
+    },
+    {
+      "id": "m16",
+      "texto": "Compra 10 mejoras",
+      "tipo": "mejoras",
+      "meta": 10
+    },
+    {
+      "id": "m17",
+      "texto": "Sube el Cañón al nivel 50",
+      "tipo": "nivel",
+      "estacion": "canon",
+      "meta": 50
+    },
+    {
+      "id": "m18",
+      "texto": "Sube todas las estaciones al nivel 50",
+      "tipo": "todas_nivel",
+      "meta": 50
+    }
+  ],
+  "tema": {
+    "escenario": "puerto",
+    "fondo": "#10161c",
+    "suelo": "#7a5a3a",
+    "camino": "#6b5038",
+    "alfombra": "#2a4a6e",
+    "mostrador_base": "#5c4030",
+    "mostrador_tapa": "#8a6a44",
+    "ropa_clientes": [
+      "#2a3f6e",
+      "#8a2a2a",
+      "#e0d8c0",
+      "#3a3a3a"
+    ],
+    "estilos_clientes": [
+      10,
+      11,
+      5
+    ],
+    "ropa_armeros": "#4a3a2e",
+    "estilo_armeros": 5,
+    "ropa_dependientes": "#8a5a2a",
+    "luz_sol": 0.34,
+    "luz_ambiente": 0.26
+  }
+}
