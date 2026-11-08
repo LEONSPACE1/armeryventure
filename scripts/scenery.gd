@@ -26,6 +26,7 @@ static func build(world: Node3D, back_z: float, spot_z: float) -> Array:
 			_hangar(world, back_z, spot_z, lights)
 		_:
 			_cave(world, back_z, spot_z, lights)
+	KayKit.era_props(world, back_z, GameState.theme("escenario", "cueva"))
 	return lights
 
 
@@ -251,17 +252,14 @@ static func _round_shield(world: Node3D, at: Vector3, face: Color, rim: Color, r
 
 
 # Barril de madera con aros.
-static func _barrel(world: Node3D, at: Vector3, wood := Color(0.5, 0.33, 0.18)) -> void:
-	Art3D.cyl(world, 0.26, 0.26, 0.7, at + Vector3(0, 0.35, 0), wood, 10)
-	Art3D.sphere(world, 0.3, at + Vector3(0, 0.35, 0), wood).scale = Vector3(1, 1.05, 1)
-	for y in [0.12, 0.58]:
-		Art3D.cyl(world, 0.3, 0.3, 0.05, at + Vector3(0, y, 0), Color(0.3, 0.3, 0.32), 10, 0.7)
+static func _barrel(world: Node3D, at: Vector3, _wood := Color(0.5, 0.33, 0.18)) -> void:
+	KayKit.prop(world, "dungeon/barrel_large.glb", at, 0.75)
 
 
-static func _crate(world: Node3D, at: Vector3, s: float, c: Color) -> void:
-	Art3D.box(world, Vector3(s, s, s), at + Vector3(0, s / 2.0, 0), c)
-	Art3D.box(world, Vector3(s + 0.02, 0.08, s + 0.02), at + Vector3(0, s * 0.8, 0), c.darkened(0.25))
-	Art3D.box(world, Vector3(s + 0.02, 0.08, s + 0.02), at + Vector3(0, s * 0.2, 0), c.darkened(0.25))
+static func _crate(world: Node3D, at: Vector3, s: float, _c: Color) -> void:
+	var path := "dungeon/box_large.glb" if GameState.era_index <= 4 else "city/box_A.gltf"
+	world.add_child(KayKit.fit(path, Vector3(s, s, s)))
+	world.get_child(world.get_child_count() - 1).position = at
 
 
 # --- Antigüedad clásica: templo de mármol ---------------------------------------

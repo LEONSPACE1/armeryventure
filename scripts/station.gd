@@ -79,12 +79,9 @@ func _build_bench() -> void:
 	_bench = Node3D.new()
 	add_child(_bench)
 	var accent := Color(GameState.station(idx)["color"])
-	var wood := Color(GameState.theme("banco", "#754f2e"))
-	Art3D.box(_bench, Vector3(2.3, 0.85, 0.9), Vector3(0, 0.43, 0), wood.darkened(0.15))
-	Art3D.box(_bench, Vector3(2.45, 0.12, 1.05), Vector3(0, 0.91, 0), wood)
-	for x in [-0.6, 0.0, 0.6]:
-		Art3D.box(_bench, Vector3(0.03, 0.8, 0.02), Vector3(x, 0.43, 0.455), wood.darkened(0.35))
-	Art3D.box(_bench, Vector3(2.32, 0.12, 0.03), Vector3(0, 0.72, 0.46), accent)
+	# Mesa de KayKit de la época, con una franja del color de la estación
+	_bench.add_child(KayKit.fit(KayKit.bench_path(), Vector3(2.45, 0.97, 1.05)))
+	Art3D.box(_bench, Vector3(2.0, 0.1, 0.03), Vector3(0, 0.82, 0.54), accent)
 	Art3D.box(_bench, Vector3(0.45, 0.28, 0.4), Vector3(-0.85, 1.11, -0.1), Color(0.5, 0.5, 0.53))
 	for k in 4:
 		var w := Art3D.weapon(GameState.station(idx)["id"])

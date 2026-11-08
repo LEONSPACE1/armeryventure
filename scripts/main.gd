@@ -91,7 +91,7 @@ var _meta_ui
 
 func _ready() -> void:
 	randomize()
-	_font = ThemeDB.fallback_font
+	_font = load("res://assets/fonts/LilitaOne-Regular.ttf")
 	_coin_tex = Art.coin_texture(48)
 	_shown_coins = GameState.coins
 	_build_world()
@@ -522,9 +522,9 @@ func _box(bg: Color, border: Color, radius := 14, bottom := 6) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg
 	sb.border_color = border
-	sb.set_border_width_all(2)
+	sb.set_border_width_all(3)
 	sb.border_width_bottom = bottom
-	sb.set_corner_radius_all(radius)
+	sb.set_corner_radius_all(radius + 4)
 	sb.set_content_margin_all(12)
 	sb.shadow_color = Color(0, 0, 0, 0.35)
 	sb.shadow_size = 6
@@ -533,7 +533,7 @@ func _box(bg: Color, border: Color, radius := 14, bottom := 6) -> StyleBoxFlat:
 
 
 func _button_styles(theme: Theme, type: String, base: Color) -> void:
-	var normal := _box(base, base.darkened(0.45), 14, 7)
+	var normal := _box(base, base.darkened(0.45), 18, 8)
 	normal.shadow_size = 3
 	normal.set_content_margin_all(8)
 	var hover: StyleBoxFlat = normal.duplicate()
@@ -558,14 +558,15 @@ func _button_styles(theme: Theme, type: String, base: Color) -> void:
 
 func _make_theme() -> Theme:
 	var theme := Theme.new()
+	theme.default_font = _font
 	theme.default_font_size = 24
 	theme.set_color("font_color", "Label", CREAM)
 	theme.set_color("font_outline_color", "Label", Color(0.1, 0.05, 0.02, 0.8))
-	_button_styles(theme, "Button", Color(0.86, 0.5, 0.16))
-	_button_styles(theme, "BuyButton", Color(0.34, 0.68, 0.24))
+	_button_styles(theme, "Button", Color(0.94, 0.54, 0.14))
+	_button_styles(theme, "BuyButton", Color(0.3, 0.73, 0.27))
 	_button_styles(theme, "ClaimButton", Color(0.95, 0.68, 0.12))
 	_button_styles(theme, "PillButton", Color(0.36, 0.25, 0.15))
-	_button_styles(theme, "CloseButton", Color(0.82, 0.27, 0.2))
+	_button_styles(theme, "CloseButton", Color(0.88, 0.31, 0.22))
 	var bar_bg := StyleBoxFlat.new()
 	bar_bg.bg_color = Color(0, 0, 0, 0.45)
 	bar_bg.set_corner_radius_all(8)
