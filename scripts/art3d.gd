@@ -441,6 +441,8 @@ static func bake(root: Node3D, deep := false) -> void:
 
 static func _collect(n: Node, xf: Transform3D, deep: bool, groups: Dictionary, victims: Array, top: bool) -> void:
 	for c in n.get_children():
+		if c.has_meta("kk"):
+			continue
 		if c is MeshInstance3D and not c.has_meta("keep"):
 			var cx: Transform3D = xf * c.transform
 			_append(c, cx, groups)

@@ -30,11 +30,22 @@ var _eyes: Node3D
 var _carry: Node3D
 var _carry_shown := ""
 var _hammer: Node3D
+var _anim: AnimationPlayer
+var _anim_name := ""
+
+# Personajes de KayKit (CC0) en lugar del cuerpo hecho por código
+const USE_KAYKIT := true
+const HEIGHT := 1.85
+const LOOPS := ["Idle", "Walking_A", "Walking_B", "Interact", "1H_Melee_Attack_Chop", "Cheer"]
+var kaykit_body := ""   # Barbarian, Knight, Mage o Rogue ("" = según el papel)
 
 
 func _ready() -> void:
 	_seed = randf() * 10.0
 	_t = _seed
+	if USE_KAYKIT:
+		_build_kaykit()
+		return
 	_body = Node3D.new()
 	add_child(_body)
 	var shoe := Color(0.3, 0.2, 0.12)
@@ -87,6 +98,16 @@ func _ready() -> void:
 	cap.scale = Vector3(1.05, 0.75, 1.0)
 	var fringe := Art3D.sphere(head, 0.2, Vector3(0, 0.27, 0.17), hair)
 	fringe.scale = Vector3(1.5, 0.55, 0.9)
+	_hat(head)
+	_carry = Node3D.new()
+	_carry.position = Vector3(0, 2.25, 0.05)
+	_body.add_child(_carry)
+	for part in _legs + _arms + [_torso, head, _eyes]:
+		Art3D.bake(part)
+
+
+# Sombrero, casco o peinado según `style`, y barba (en el espacio de una cabeza de radio 0.37)
+func _hat(head: Node3D) -> void:
 	match style:
 		1:
 			Art3D.sphere(head, 0.15, Vector3(0, -0.05, -0.38), hair)
@@ -210,15 +231,13 @@ func _ready() -> void:
 	if beard:
 		var b := Art3D.sphere(head, 0.25, Vector3(0, -0.22, 0.18), hair)
 		b.scale = Vector3(1.1, 0.8, 0.8)
-	_carry = Node3D.new()
-	_carry.position = Vector3(0, 2.25, 0.05)
-	_body.add_child(_carry)
-	for part in _legs + _arms + [_torso, head, _eyes]:
-		Art3D.bake(part)
 
 
 func _process(delta: float) -> void:
 	_t += delta
+	if USE_KAYKIT:
+		_process_kaykit(delta)
+		return
 	happy = maxf(0.0, happy - delta * 2.5)
 	var hop := sin(happy * PI) * 0.45
 	if walking:
@@ -282,3 +301,117 @@ func face(dir: Vector3, delta: float) -> void:
 		return
 	var target := atan2(dir.x, dir.z)
 	rotation.y = lerp_angle(rotation.y, target, minf(1.0, delta * 12.0))
+
+
+# --- Personaje KayKit ---------------------------------------------------------
+
+func _build_kaykit() -> void:
+	var base := kaykit_body
+	if base == "":
+		base = KayKit.era_body(0 if with_hammer else (1 if apron else randi()))
+	_body = Node3D.new()
+	add_child(_body)
+	var inst := KayKit.scene("characters/%s.glb" % base).instantiate() as Node3D
+	_body.add_child(inst)
+	# Fuera armas, escudos y sombreros propios: cada época pone los suyos
+	for ba in inst.find_children("*", "BoneAttachment3D", true, false):
+		ba.visible = false
+	var box := KayKit.aabb(inst)
+	var k := HEIGHT / maxf(box.size.y, 0.01)
+	inst.scale = Vector3.ONE * k
+	inst.position = Vector3(0, -box.position.y * k, 0)
+	var sk := inst.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	# La ropa toma el color de la época (mezclado con la textura)
+	for mi in sk.get_children():
+		if mi is MeshInstance3D and (String(mi.name).ends_with("_Body") or String(mi.name).contains("Leg")):
+			var m := (mi as MeshInstance3D).mesh.surface_get_material(0)
+			if m is StandardMaterial3D:
+				var t := (m as StandardMaterial3D).duplicate() as StandardMaterial3D
+				t.albedo_color = Color.WHITE.lerp(outfit.lightened(0.3), 0.8 if String(mi.name).ends_with("_Body") else 0.55)
+				mi.set_surface_override_material(0, t)
+	# Sombrero de la época sobre la cabeza (sigue al hueso "head")
+	var head_mesh: MeshInstance3D = null
+	for mi in sk.get_children():
+		if mi is MeshInstance3D and String(mi.name).contains("_Head"):
+			head_mesh = mi
+	var hb := sk.find_bone("head")
+	if head_mesh and hb >= 0:
+		var hbox: AABB = head_mesh.transform * head_mesh.get_aabb()
+		var att := BoneAttachment3D.new()
+		att.bone_name = "head"
+		sk.add_child(att)
+		var head := Node3D.new()
+		att.add_child(head)
+		var hs := hbox.size.x * 0.5 / 0.37
+		var rest := sk.get_bone_global_rest(hb)
+		head.transform = rest.affine_inverse() * Transform3D(Basis.from_scale(Vector3.ONE * hs), hbox.get_center() + Vector3(0, hbox.size.y * 0.06, -hbox.size.z * 0.03))
+		# Barbarian, Knight y Mage traen la cabeza pelada (su sombrero va aparte): pelo propio
+		if base != "Rogue":
+			var cap := Art3D.sphere(head, 0.4, Vector3(0, 0.1, -0.06), hair)
+			cap.scale = Vector3(1.05, 0.72, 1.0)
+		_hat(head)
+		Art3D.bake(head)
+	# Martillo del armero en la mano derecha
+	if with_hammer and sk.find_bone("handslot.r") >= 0:
+		var hand := BoneAttachment3D.new()
+		hand.bone_name = "handslot.r"
+		sk.add_child(hand)
+		_hammer = Node3D.new()
+		_hammer.scale = Vector3.ONE / k
+		hand.add_child(_hammer)
+		Art3D.cyl(_hammer, 0.035, 0.035, 0.45, Vector3(0, 0.1, 0), Color(0.45, 0.28, 0.14), 6)
+		Art3D.box(_hammer, Vector3(0.26, 0.15, 0.15), Vector3(0, 0.33, 0), Color(0.55, 0.56, 0.6), 0.0, 0.7)
+		Art3D.bake(_hammer)
+	_eyes = Node3D.new()
+	_carry = Node3D.new()
+	_carry.position = Vector3(0, HEIGHT + 0.35, 0.05)
+	add_child(_carry)
+	_anim = inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _anim:
+		for n in LOOPS:
+			if _anim.has_animation(n):
+				_anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
+		_play("Idle")
+		_anim.seek(randf() * 1.5, true)
+
+
+func _play(n: String, speed := 1.0) -> void:
+	if _anim == null or not _anim.has_animation(n):
+		return
+	_anim.speed_scale = speed
+	if n != _anim_name:
+		_anim_name = n
+		_anim.play(n, 0.2)
+
+
+func _process_kaykit(delta: float) -> void:
+	happy = maxf(0.0, happy - delta * 1.2)
+	if happy > 0.0:
+		_play("Cheer", 1.4)
+	elif walking:
+		_play("Walking_B" if carry_id != "" else "Walking_A", 1.2)
+	else:
+		match pose:
+			Pose.ASSEMBLE:
+				_play("Interact", 1.2)
+			Pose.HAMMER:
+				_play("1H_Melee_Attack_Chop", 1.3)
+			Pose.LIFT:
+				_play("Cheer")
+			_:
+				_play("Idle")
+	if _hammer:
+		_hammer.visible = pose == Pose.HAMMER or pose == Pose.NONE
+	_update_carry()
+
+
+func _update_carry() -> void:
+	if carry_id != _carry_shown:
+		for c in _carry.get_children():
+			c.queue_free()
+		if carry_id != "":
+			var w := Art3D.weapon(carry_id)
+			w.rotation.z = PI / 2
+			w.scale = Vector3.ONE * 0.9
+			_carry.add_child(w)
+		_carry_shown = carry_id

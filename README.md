@@ -27,7 +27,7 @@ Las **8 épocas** son jugables, de la Prehistoria a la era futurista:
 - Los armeros fabrican por etapas: ensamblan las piezas, forjan a martillazos sobre las brasas y levantan el arma terminada.
 - Los personajes guardan distancia entre sí y cruzan la segunda fila de bancos por los pasillos.
 - Guardado automático cada 10 s y ganancias fuera de línea (50 % del ritmo, máximo 2 h).
-- Estilo 3D low-poly isométrico hecho por código (sin modelos externos): cueva con antorchas que titilan, sombras, personajes articulados (caminar, respirar, parpadear, saltar de alegría), armeros que martillan con chispas y armas 3D sobre los bancos. Las piezas fijas se juntan en una sola malla (`Art3D.bake`) para que el celular dibuje poco. Los letreros, barras y burbujas son 2D encima de la escena.
+- Estilo 3D low-poly isométrico con modelos de **KayKit** (CC0, ver `CREDITOS.md`): armeros, dependientes y clientes son personajes KayKit animados (caminar, martillar, armar, celebrar) con la ropa teñida y el casco o sombrero de cada época; las mesas, el mostrador y la decoración de los costados también son de KayKit. Las armas, paredes, pisos, luces y chispas siguen hechos por código. La interfaz usa la letra Lilita One. Las piezas fijas se juntan en una sola malla (`Art3D.bake`) para que el celular dibuje poco. Los letreros, barras y burbujas son 2D encima de la escena.
 
 ## Cómo abrirlo en tu computador
 
@@ -52,7 +52,8 @@ Al completar todas las misiones, el panel **Épocas** permite viajar a la siguie
 | `scripts/art3d.gd` | Piezas 3D (cajas, cilindros, armas, chispas) y unión de mallas |
 | `scripts/scenery.gd` | Escenario de cada época (cueva, taller, templo, castillo, puerto, fábrica, tienda, hangar) |
 | `scripts/weapon_icons.gd` | Íconos de armas sacados de sus modelos 3D |
-| `scripts/person3d.gd` | Personaje 3D articulado y sus animaciones |
+| `scripts/person3d.gd` | Personaje (KayKit con sombrero de la época, o el antiguo hecho por código) y sus animaciones |
+| `scripts/kaykit.gd` | Carga y ajuste de modelos KayKit, mesas y decoración de cada época |
 | `scripts/art.gd` | Dibujo 2D de íconos, letreros e interfaz |
 | `scripts/station.gd` | Estación de fabricación y sus armeros |
 | `scripts/meta.gd` | Gemas, fichas, cofres, maestros armeros y equipo (se conservan entre épocas) |
